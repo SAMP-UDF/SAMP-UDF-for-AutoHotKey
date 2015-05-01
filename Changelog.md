@@ -1,3 +1,7 @@
+R12
+
+Update auf 0.3.7 Coming soon
+
 R11.1
 
 GetChatLine auf alte funktion umgestellt wieder
