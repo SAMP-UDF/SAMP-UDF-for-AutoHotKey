@@ -1,6 +1,9 @@
 R12
 
-Update auf 0.3.7 Coming soon
+Update auf 0.3.7
+
+Username funktioniert noch nicht
+
 
 R11.1
 
