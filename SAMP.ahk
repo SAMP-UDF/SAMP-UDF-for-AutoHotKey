@@ -1,4 +1,4 @@
-; #### SAMP UDF R12 ####
+; #### SAMP UDF R12.0.1 ####
 ; SAMP Version: 0.3.7
 ; Written by Chuck_Floyd 
 ; https://github.com/FrozenBrain
@@ -52,7 +52,7 @@ global ovehicleNames := ["Landstalker","Bravura","Buffalo","Linerunner","Perreni
 ; SAMP Addresses
 global ADDR_SAMP_INCHAT_PTR := 0x21a10c
 global ADDR_SAMP_INCHAT_PTR_OFF := 0x55
-;global ADDR_SAMP_USERNAME := 0xB290
+global ADDR_SAMP_USERNAME := 0x219A6F
 global ADDR_SAMP_CHATMSG_PTR := 0x21a0e4
 global ADDR_SAMP_SHOWDLG_PTR := 0x21a0b8
 global FUNC_SAMP_SENDCMD := 0x65c60
