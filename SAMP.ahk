@@ -64,21 +64,22 @@ global FUNC_SAMP_STOPAUDIOSTR := 0x629a0
 global FUNC_SAMP_SHOWDIALOG := 0x6B9C0
 global FUNC_UPDATESCOREBOARD := 0x8a10
 global SAMP_INFO_OFFSET := 0x21a0f8
-global SAMP_PPOOLS_OFFSET := 0x3D9
-global SAMP_PPOOL_PLAYER_OFFSET := 0x14
+
+global SAMP_PPOOLS_OFFSET := 0x3CD
+global SAMP_PPOOL_PLAYER_OFFSET := 0x18
 global SAMP_SLOCALPLAYERID_OFFSET := 0x4
 global SAMP_ISTRLEN_LOCALPLAYERNAME_OFFSET := 0x1A
 global SAMP_SZLOCALPLAYERNAME_OFFSET := 0xA
 global SAMP_PSZLOCALPLAYERNAME_OFFSET := 0xA
 global SAMP_PREMOTEPLAYER_OFFSET := 0x2E
-global SAMP_ISTRLENNAME___OFFSET := 0x24
-global SAMP_SZPLAYERNAME_OFFSET := 0x14
-global SAMP_PSZPLAYERNAME_OFFSET := 0x14
+global SAMP_ISTRLENNAME___OFFSET := 0x1C
+global SAMP_SZPLAYERNAME_OFFSET := 0xC
+global SAMP_PSZPLAYERNAME_OFFSET := 0xC
 global SAMP_ILOCALPLAYERPING_OFFSET := 0x26
 global SAMP_ILOCALPLAYERSCORE_OFFSET := 0x2A
-global SAMP_IPING_OFFSET := 0xC
-global SAMP_ISCORE_OFFSET := 0x4
-global SAMP_ISNPC_OFFSET := 0x0
+global SAMP_IPING_OFFSET                    := 0x28
+global SAMP_ISCORE_OFFSET                   := 0x24
+global SAMP_ISNPC_OFFSET                    := 0x4
 global SAMP_PLAYER_MAX := 1004
 
 ; Sizes
@@ -517,7 +518,7 @@ getPlayerNameById(dwId) {
 ; returns -1 on error
 getPlayerIdByName(wName) {
     wName := "" wName
-    if(StrLen(wName) < 1 || StrLen(wName) > 24)
+    if(StrLen(wName) < 1 || StrLen(wName) > 20)
         return -1
     
     if(iRefreshScoreboard+iUpdateTick > A_TickCount)
@@ -556,7 +557,7 @@ getPlayerScoreById(dwId) {
         return ""
     }
     
-    if(!updateOScoreboardData(1))
+    if(!updateOScoreboardData())
         return ""
     
     if(oScoreboardData[dwId])
@@ -579,7 +580,7 @@ getPlayerPingById(dwId) {
         return -1
     }
     
-    if(!updateOScoreboardData(1))
+    if(!updateOScoreboardData())
         return -1
     
     if(oScoreboardData[dwId])
@@ -653,18 +654,15 @@ updateScoreboardDataEx() {
 }
 
 ; internal stuff
-updateOScoreboardData(ex=0) {
+updateOScoreboardData() {
     if(!checkHandles())
         return 0
     
     oScoreboardData := []
     
-    if(ex && iRefreshScoreboard+5000 < A_TickCount)
-    {
-        if(!updateScoreboardDataEx())
-            return 0
-    }
-    
+    if(!updateScoreboardDataEx())
+        return 0
+
     iRefreshScoreboard := A_TickCount
     
     dwAddress := readDWORD(hGTA, dwSAMP + SAMP_INFO_OFFSET)
