@@ -39,7 +39,7 @@ return
 ;#########################################################################################################
 
 
-;Gebt einen Spielernamen ein, um weitere Infos Ã¼ber diesen Spieler zu bekommen
+;Gebt einen Spielernamen ein, um weitere Infos über diesen Spieler zu bekommen
 Numpad1::
 SendInput tName:{Space}
 Suspend On
@@ -52,7 +52,7 @@ varID := getPlayerIdByName(varName)
 showGameText(getPlayerNameById(varID) "~n~Score: " getPlayerScoreById(varID) "~n~Ping: " getPlayerPingById(varID), 2000, 5)
 return
 
-;Gebt eine ID ein, um weitere Infos Ã¼ber diesen Spieler zu bekommen
+;Gebt eine ID ein, um weitere Infos über diesen Spieler zu bekommen
 Numpad2::
 SendInput tID:{Space}
 Suspend On
@@ -74,10 +74,11 @@ Numpad4::
 stopAudioStream()
 return
 
-;Zeigt diverse Infos Ã¼ber die eigene Spielerfigur an
+;Zeigt diverse Infos über die eigene Spielerfigur an
 Numpad5::
 if ( isInChat() )
 return
+addChatMessage("{FFFFFF}IP: {FF0000}" getIP() "{FFFFFF}, Hostname: {FF0000}" getHostname())
 addChatMessage("{FFFFFF}Name: {FF0000}" getUsername())
 addChatMessage("{FFFFFF}HP: {FF0000}" getPlayerHealth() "{FFFFFF}, ARMOR: {FF0000}" getPlayerArmor())
 pos := getCoordinates()
@@ -101,6 +102,11 @@ addChatMessage("{FFFFFF}Is Driver:" isPlayerDriver())
 addChatMessage("{FFFFFF}Light State:" getVehicleLightState())
 addChatMessage("{FFFFFF}Engine State:" getVehicleEngineState())
 addChatMessage("{FFFFFF}Door State:" getVehicleLockState())
+return
+
+Numpad8::
+Count := CountOnlinePlayers()
+AddChatMessage("Es sind " Count " Spieler Online.")
 return
 
 Numpad9::
