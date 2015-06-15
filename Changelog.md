@@ -1,4 +1,25 @@
+R12.0.2
+
+getIP()
+
+getHostname()
+
+restart()
+
+CountOnlinePlayers()
+
+GetVehicleSpeed()
+
+Kapazität von ShowDialog höher gestellt
+
+
+
+R12.0.1.1
+
+GetPlayerxxx etc funktioniert wieder
+
 R12.0.1
+
 GetUserName ist wieder drinne
 
 R12
