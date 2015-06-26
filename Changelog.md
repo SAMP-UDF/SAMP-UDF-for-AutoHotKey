@@ -1,3 +1,8 @@
+R12.0.3
+
+ShowDialog fix. Es können nun wirklich wieder längere Texte reingeschrieben werden
+
+
 R12.0.2
 
 getIP()
