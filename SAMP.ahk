@@ -1,4 +1,4 @@
-; #### SAMP UDF R12.0.2 ####
+; #### SAMP UDF R12.0.3 ####
 ; SAMP Version: 0.3.7
 ; Written by Chuck_Floyd 
 ; https://github.com/FrozenBrain
@@ -101,6 +101,8 @@ global pMemory := 0x0
 global pParam1 := 0x0
 global pParam2 := 0x0
 global pParam3 := 0x0
+global pParam4                         := 0x0
+global pParam5                         := 0x0
 global pInjectFunc := 0x0
 global nZone := 1
 global nCity := 1
@@ -117,26 +119,26 @@ global iUpdateTick := 2500 ;time in ms, used for getPlayerNameById etc. to refre
 ; #     - getUsername()                             Liest den Namen des Spielers aus                                  #
 ; #     - SendChat(wText)                           Sendet eine Nachricht od. einen Befehl direkt an den Server       #
 ; #     - addChatMessage(wText)                     Fügt eine Zeile in den Chat ein (nur für den Spieler sichtbar)    #
-; #     - showGameText(wText, dwTime, dwTextsize)   Zeigt einen Text inmitten des Bildschirmes an  		      #
-; #     - showDialog(dwStyle, wCaption, wInfo, wButton1) Zeigt einen Dialog an					      #
+; #     - showGameText(wText, dwTime, dwTextsize)   Zeigt einen Text inmitten des Bildschirmes an  					  #
+; #     - showDialog(dwStyle, wCaption, wInfo, wButton1) Zeigt einen Dialog an					                 	  #
 ; #     - playAudioStream(wUrl)                     Spielt einen "Audio Stream" ab                                    #
 ; #     - stopAudioStream()                         Stoppt den aktuellen Audio Stream                                 #
-; # 	- GetChatLine(Line, Output)		    Liest die eingestellte Zeile aus,				      #
-; #				                    Optionale Parameter (timestamp=0, color=0)			      #
-; # 	- blockChatInput() 			    Eine Funktion um Messages zum Server zu blockieren		      #
-; # 	- unBlockChatInput() 			    Eine Funktion um Messages zum Server zu entblockieren	      #
+; # 	- GetChatLine(Line, Output)		            Liest die eingestellte Zeile aus,			            	      #
+; #				                        		    Optionale Parameter (timestamp=0, color=0)			              #
+; # 	- blockChatInput() 							Eine Funktion um Messages zum Server zu blockieren			      #
+; # 	- unBlockChatInput() 						Eine Funktion um Messages zum Server zu entblockieren			  #
 ; # ----------------------------------------------------------------------------------------------------------------- #
-; #     - patchRadio() (interner stuff) 									      #
-; #     - unPatchRadio() (interner stuff)									      #
+; #     - patchRadio() (interner stuff) 									                                    	  #
+; #     - unPatchRadio() (interner stuff)									                                          #
 ; #####################################################################################################################
-; # 													              #
+; # 														                                                          #
 ; #     - getPlayerScoreById(dwId)                  Zeigt den Score zu der Id                                         #
 ; #     - getPlayerPingById(dwId)                   Zeigt den Ping zu der Id                                          #
 ; #     - getPlayerNameById(dwId)                   Zeigt den Namen zu der Id                                         #
 ; #     - getPlayerIdByName(wName)                  Zeigt die Id zu dem Namen                                         #
 ; #     - updateScoreboardDataEx()                  Aktualisiert Scoreboard Inhalte (wird implizit aufgerufen)        #
 ; #     - updateOScoreboardData()                   Aktualisiert Scoreboard Inhalte (wird implizit aufgerufen)        #
-; #     - isNPCById(dwId)   			    Zeigt an ob die ID ein NPC 					      #
+; #	    - isNPCById(dwId)   			            Zeigt an ob die ID ein NPC 			                			  #
 ; #     - getIP()                                   Zeigt die Server IP                                               #
 ; #     - getHostname()                             Zeigt den Servernamen                                             #
 ; #     - restart()                                 Restartet das Game                                                #
@@ -145,25 +147,25 @@ global iUpdateTick := 2500 ;time in ms, used for getPlayerNameById etc. to refre
 ; # Spielerfunktionen:                                                                                                #
 ; #     - getPlayerHealth()                         Ermittelt die HP des Spielers                                     #
 ; #     - getPlayerArmor()                          Ermittelt den Rüstungswert des Spielers                           #
-; # 	- getPlayerInteriorId()			    Ermittelt die Interior ID wo der Spieler ist 		      #
-; # 	- getPlayerMoney() 			    Ermittelt den Kontostand des Spielers (nur GTA Intern)            #
-; #	- getPlayerWanteds()			    Ermittelt die Wantedanzahl des Spielers(nur bis 6 Wanteds)        #
+; # 	- getPlayerInteriorId()			            Ermittelt die Interior ID wo der Spieler ist 		              #
+; # 	- getPlayerMoney() 			                Ermittelt den Kontostand des Spielers (nur GTA Intern)            #
+; #	    - getPlayerWanteds()			            Ermittelt die Wantedanzahl des Spielers(nur bis 6 Wanteds)        #
 ; #####################################################################################################################
 ; # Fahrzeugfunktionen:                                                                                               #
 ; #     - isPlayerInAnyVehicle()                    Ermittelt, ob sich der Spieler in einem Fahrzeug befindet         #
 ; #     - getVehicleHealth()                        Ermittelt die HP des Fahrzeugs, in dem der Spieler sitzt          #
-; # 	- isPlayerDriver() 			    Ermittelt ob der Spieler Fahrer des Auto's ist		      #
-; # 	- getVehicleType() 			    Ermittelt den FahrzeugTyp(Auto,LKW etc)                           #
-; # 	- getVehicleModelId()			    Ermittelt die Fahrzeugmodell ID 				      #
-; # 	- getVehicleModelName() 		    Ermittelt den FahrzeugModell Namen 				      #
-; # 	- getVehicleLightState() 		    Ermittelt den Lichtzustand vom Auto 			      #
-; # 	- getVehicleEngineState() 		    Ermittelt den Motorzustand vom Auto 			      #
-; # 	- getVehicleLockState() 		    Ermittelt ob das Auto auf oder zu ist 			      #
-; #     - GetVehicleSpeed()                         Ermittelt die Geschwindigkeit des Autos			      #
+; # 	- isPlayerDriver() 			                Ermittelt ob der Spieler Fahrer des Auto's ist		              #
+; # 	- getVehicleType() 			                Ermittelt den FahrzeugTyp(Auto,LKW etc)                           #
+; # 	- getVehicleModelId()			            Ermittelt die Fahrzeugmodell ID 				                  #
+; # 	- getVehicleModelName() 		            Ermittelt den FahrzeugModell Namen 				                  #
+; # 	- getVehicleLightState() 		            Ermittelt den Lichtzustand vom Auto 			                  #
+; # 	- getVehicleEngineState() 		            Ermittelt den Motorzustand vom Auto 			                  #
+; # 	- getVehicleLockState() 		            Ermittelt ob das Auto auf oder zu ist 			                  #
+; #     - GetVehicleSpeed()                         Ermittelt die Geschwindigkeit des Autos
 ; #####################################################################################################################
 ; # Standpunktbestimmung:                                                                                             #
 ; #     - getCoordinates()                          Ermittelt die aktuelle Position (Koordinaten)                     #
-; #	- GetPlayerPos(X,Y,Z)   		    siehe oben drüber 						      #
+; #	    - GetPlayerPos(X,Y,Z)                       siehe oben drüber 						                          #
 ; # ----------------------------------------------------------------------------------------------------------------- #
 ; #     - initZonesAndCities()                      Initialisiert eine Liste aller Standartgebiete                    #
 ; #                                                 (Voraussetzung für die folgenden Funktionen dieser Kategorie)     #
@@ -172,10 +174,10 @@ global iUpdateTick := 2500 ;time in ms, used for getPlayerNameById etc. to refre
 ; #     - getCurrentZonecode()                      Ermittelt die aktulle Zone in Kurzform                            #
 ; #     - AddZone(Name, X1, Y1, Z1, X2, Y2, Z2)     Fügt eine Zone zum Index hinzu                                    #
 ; #     - AddCity(Name, X1, Y1, Z1, X2, Y2, Z2)     Fügt eine Stadt zum Index hinzu                                   #
-; #	- IsPlayerInRangeOfPoint(X, Y, Z, Radius)   Bestimmt ob der Spieler in der Nähe der Koordinaten ist           #
-; #	- IsIsPlayerInRangeOfPoint2D(X, Y, Radius)  Bestimmt ob der Spieler in der Nähe der Koordinaten ist           #
-; #	- getPlayerZone()			    -							              #
-; #	- getPlayerCity()			    -						                      #
+; #	    - IsPlayerInRangeOfPoint(X, Y, Z, Radius)   Bestimmt ob der Spieler in der Nähe der Koordinaten ist           #
+; #	    - IsIsPlayerInRangeOfPoint2D(X, Y, Radius)  Bestimmt ob der Spieler in der Nähe der Koordinaten ist           #
+; #	    - getPlayerZone()			    -							                                                  #
+; #	    - getPlayerCity()			    -						                                                      #
 ; #####################################################################################################################
 ; # Sonstiges:                                                                                                        #
 ; #     - checkHandles()                                                                                              #
@@ -315,6 +317,9 @@ showDialog(dwStyle, wCaption, wInfo, wButton1 ) {
     wCaption := "" wCaption
     wInfo := "" wInfo
     wButton1 := "" wButton1
+    
+    if(dwStyle<0 || dwStyle>5 || StrLen(wCaption)>=64 || StrLen(wInfo)>=4096 || StrLen(wButton1)>10)
+        return false
 
     if(!checkHandles())
         return false
@@ -328,13 +333,13 @@ showDialog(dwStyle, wCaption, wInfo, wButton1 ) {
         return false
     }
     
-    writeString(hGTA, pParam1, wCaption)
+    writeString(hGTA, pParam5, wCaption)
     if(ErrorLevel)
         return false
-    writeString(hGTA, pParam2, wInfo)
+    writeString(hGTA, pParam1, wInfo)
     if(ErrorLevel)
         return false
-    writeString(hGTA, pParam3, wButton1)
+    writeString(hGTA, pParam5+512, wButton1)
     if(ErrorLevel)
         return false
     
@@ -349,13 +354,13 @@ showDialog(dwStyle, wCaption, wInfo, wButton1 ) {
     NumPut(0x68, injectData, 5, "UChar")        ;5 + 1        ;push 0
     NumPut(0, injectData, 6, "UInt")            ;6 + 4
     NumPut(0x68, injectData, 10, "UChar")        ;10 + 1        ;push 0
-    NumPut(pParam1+StrLen(wCaption), injectData, 11, "UInt")            ;11 + 4
+    NumPut(pParam5+StrLen(wCaption), injectData, 11, "UInt")            ;11 + 4
     NumPut(0x68, injectData, 15, "UChar")        ;15 + 1        ;push button1
-    NumPut(pParam3, injectData, 16, "UInt")        ;16 + 4
+    NumPut(pParam5+512, injectData, 16, "UInt")        ;16 + 4
     NumPut(0x68, injectData, 20, "UChar")        ;20 + 1        ;push info
-    NumPut(pParam2, injectData, 21, "UInt")        ;21 + 4
+    NumPut(pParam1, injectData, 21, "UInt")        ;21 + 4
     NumPut(0x68, injectData, 25, "UChar")        ;25 + 1        ;push caption
-    NumPut(pParam1, injectData, 26, "UInt")        ;26 + 4
+    NumPut(pParam5, injectData, 26, "UInt")        ;26 + 4
     NumPut(0x68, injectData, 30, "UChar")        ;30 + 1        ;push style
     NumPut(dwStyle, injectData, 31, "UInt")        ;31 + 4
     NumPut(0x68, injectData, 35, "UChar")        ;35 + 1        ;push 1
@@ -1830,15 +1835,17 @@ refreshSAMP() {
 ; internal stuff
 refreshMemory() {
     if(!pMemory) {
-        pMemory     := virtualAllocEx(hGTA, 5120, 0x1000 | 0x2000, 0x40)
+        pMemory     := virtualAllocEx(hGTA, 6144, 0x1000 | 0x2000, 0x40)
         if(ErrorLevel) {
             pMemory := 0x0
             return false
         }
         pParam1     := pMemory
-        pParam2     := pMemory + 2048
-        pParam3     := pMemory + 3072
-        pInjectFunc := pMemory + 4096
+        pParam2     := pMemory + 1024
+        pParam3     := pMemory + 2048
+        pParam4     := pMemory + 3072
+        pParam5     := pMemory + 4096
+        pInjectFunc := pMemory + 5120
     }
     return true
 }
