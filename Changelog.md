@@ -1,3 +1,10 @@
+R13
+
+Einige neue Sachen hinzugefügt. Guckt bitte in die Datei. 
+
+Restart entfernt
+
+
 R12.0.3
 
 ShowDialog fix. Es können nun wirklich wieder längere Texte reingeschrieben werden
