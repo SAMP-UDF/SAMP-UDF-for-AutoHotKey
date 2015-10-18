@@ -682,44 +682,6 @@ getWeatherName() {
     return ""
 }
 
-patchRadio()
-{
-    if(!checkHandles())
-        return false
-    
-    VarSetCapacity(nop, 4, 0)
-    NumPut(0x90909090,nop,0,"UInt")
-    
-    dwFunc := dwSAMP + FUNC_SAMP_PLAYAUDIOSTR
-    writeRaw(hGTA, dwFunc, &nop, 4)
-    writeRaw(hGTA, dwFunc+4, &nop, 1)
-    
-    dwFunc := dwSAMP + FUNC_SAMP_STOPAUDIOSTR
-    writeRaw(hGTA, dwFunc, &nop, 4)
-    writeRaw(hGTA, dwFunc+4, &nop, 1)
-    return true
-}
-
-unPatchRadio()
-{
-    if(!checkHandles())
-        return false
-    
-    VarSetCapacity(old, 4, 0)
-    
-    dwFunc := dwSAMP + FUNC_SAMP_PLAYAUDIOSTR
-    NumPut(0x74003980,old,0,"UInt")
-    writeRaw(hGTA, dwFunc, &old, 4)
-    NumPut(0x39,old,0,"UChar")
-    writeRaw(hGTA, dwFunc+4, &old, 1)
-    
-    dwFunc := dwSAMP + FUNC_SAMP_STOPAUDIOSTR
-    NumPut(0x74003980,old,0,"UInt")
-    writeRaw(hGTA, dwFunc, &old, 4)
-    NumPut(0x09,old,0,"UChar")
-    writeRaw(hGTA, dwFunc+4, &old, 1)
-    return true
-}
 ; ##### Extra-Player-Funktionen #####
 
 getTargetPed() {
