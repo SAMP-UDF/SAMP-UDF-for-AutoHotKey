@@ -1,4 +1,4 @@
-; #### SAMP UDF R13 ####
+; #### SAMP UDF R14 Dev####
 ; SAMP Version: 0.3.7
 ; Written by Chuck_Floyd 
 ; https://github.com/FrozenBrain
@@ -73,6 +73,7 @@ global FUNC_SAMP_PLAYAUDIOSTR           := 0x62da0
 global FUNC_SAMP_STOPAUDIOSTR           := 0x629a0
 global FUNC_UPDATESCOREBOARD                := 0x8A10
 global SAMP_INFO_OFFSET                     := 0x21A0F8
+global ADDR_SAMP_CRASHREPORT 				:= 0x5CF2C
 global SAMP_PPOOLS_OFFSET                   := 0x3CD
 global SAMP_PPOOL_PLAYER_OFFSET             := 0x18
 global SAMP_SLOCALPLAYERID_OFFSET           := 0x4
@@ -89,6 +90,8 @@ global SAMP_IPING_OFFSET                    := 0x28
 global SAMP_ISCORE_OFFSET                   := 0x24
 global SAMP_ISNPC_OFFSET                    := 0x4
 global SAMP_PLAYER_MAX                      := 1004
+global CheckpointCheck 						:= 0xC7DEEA
+global rmaddrs 								:= [0xC7DEC8, 0xC7DECC, 0xC7DED0]
 
 ; Sizes
 global SIZE_SAMP_CHATMSG := 0xFC
@@ -111,7 +114,6 @@ global oScoreboardData := ""
 global iRefreshHandles := 0
 global iUpdateTick := 2500 ;time in ms, used for getPlayerNameById etc. to refresh data
 
-
 ; ###############################################################################################################################
 ; # 														                                                                    #
 ; # SAMP-Funktionen:                                                                                                            #
@@ -123,6 +125,8 @@ global iUpdateTick := 2500 ;time in ms, used for getPlayerNameById etc. to refre
 ; #     - addChatMessage(wText)                     Fügt eine Zeile in den Chat ein (nur für den Spieler sichtbar)              #
 ; #     - showGameText(wText, dwTime, dwTextsize)   Zeigt einen Text inmitten des Bildschirmes an  					            #
 ; #     - showDialog(dwStyle, wCaption, wInfo, wButton1) Zeigt einen Dialog an					 	                            #
+; #		- DialogTitleInfo()							Zeigt den Title des Dialogs an												#
+; #		- DialogTextInfo()							Zeigt den Text im Dialog an												#
 ; #     - playAudioStream(wUrl)                     Spielt einen "Audio Stream" ab                                              #
 ; #     - stopAudioStream()                         Stoppt den aktuellen Audio Stream                                           #
 ; #	    - GetChatLine(Line, Output)		            Liest die eingestellte Zeile aus,				                            #
@@ -258,6 +262,7 @@ global iUpdateTick := 2500 ;time in ms, used for getPlayerNameById etc. to refre
 ; ###############################################################################################################################
 ; # Sonstiges:                                                                                                                  #
 ; #     - checkHandles()                                                                                                        #
+; #     - AntiCrash()								Hilft gegen das abstürzen bei Warningscodes                                 #
 ; ###############################################################################################################################
 ; # Speicherfunktionen (intern genutzt):                                                                                        #
 ; # Memory Functions:                                                                                                           #
@@ -480,6 +485,36 @@ showDialog(dwStyle, wCaption, wInfo, wButton1 ) {
     
     return true
 }
+
+DialogTextInfo(){
+    if(!checkHandles())
+        return 0
+
+    DialogInfo      := readDWORD(hGTA, dwSAMP + SAMP_DIALOG_TEXTINFO)
+    DialogOffset    := readDWORD(hGTA, DialogInfo + 0x1C)
+    dialog_text     := readString(hGTA, DialogOffset, 4096)
+    msgbox % dialog_text ; Ausgabe des Textes
+}
+ 
+DialogTitleInfo()
+{
+	if(!checkHandles())
+		return ""
+	dwAddress := readDWORD(hGTA, dwSAMP + SAMP_DIALOG_TITLEINFO)
+	if(ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return ""
+	}
+	text := readString(hGTA, dwAddress + 0x40, 128)
+	if(ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return ""
+	}
+
+	ErrorLevel := ERROR_OK
+	return text
+}
+
 
 playAudioStream(wUrl) {
     wUrl := "" wUrl
@@ -2118,6 +2153,12 @@ isPlayerDriver() {
     if(!dwAddr)
         return -1
     
+    dwCPedPtr := readDWORD(hGTA, ADDR_CPED_PTR)
+    if(ErrorLevel) {
+        ErrorLevel := ERROR_READ_MEMORY
+        return -1
+    }
+    
     dwVal := readDWORD(hGTA, dwAddr + ADDR_VEHICLE_DRIVER)
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
@@ -2400,6 +2441,80 @@ getPlayerRadiostationName() {
     return ""
 }
 
+; ##### Checkpointsachen #####
+setCheckpoint(fX, fY, fZ, fSize ) {
+    if(!checkHandles())
+        return false
+    dwFunc := dwSAMP + 0x9D340
+    dwAddress := readDWORD(hGTA, dwSAMP + ADDR_SAMP_INCHAT_PTR) ;misc info
+    if(ErrorLevel || dwAddress==0) {
+        ErrorLevel := ERROR_READ_MEMORY
+        return false
+    }
+    VarSetCapacity(buf, 16, 0)
+    NumPut(fX, buf, 0, "Float")
+    NumPut(fY, buf, 4, "Float")
+    NumPut(fZ, buf, 8, "Float")
+    NumPut(fSize, buf, 12, "Float")
+    writeRaw(hGTA, pParam1, &buf, 16)
+    dwLen := 31
+    VarSetCapacity(injectData, dwLen, 0)
+    NumPut(0xB9, injectData, 0, "UChar")
+    NumPut(dwAddress, injectData, 1, "UInt")
+    NumPut(0x68, injectData, 5, "UChar")
+    NumPut(pParam1+12, injectData, 6, "UInt")
+    NumPut(0x68, injectData, 10, "UChar")
+    NumPut(pParam1, injectData, 11, "UInt")
+    NumPut(0xE8, injectData, 15, "UChar")
+    offset := dwFunc - (pInjectFunc + 20)
+    NumPut(offset, injectData, 16, "Int")
+    NumPut(0x05C7, injectData, 20, "UShort")
+    NumPut(dwAddress+0x24, injectData, 22, "UInt")
+    NumPut(1, injectData, 26, "UInt")
+    NumPut(0xC3, injectData, 30, "UChar")
+    writeRaw(hGTA, pInjectFunc, &injectData, dwLen)
+    if(ErrorLevel)
+        return false
+    hThread := createRemoteThread(hGTA, 0, 0, pInjectFunc, 0, 0, 0)
+    if(ErrorLevel)
+        return false
+    waitForSingleObject(hThread, 0xFFFFFFFF)
+    closeProcess(hThread)
+    ErrorLevel := ERROR_OK
+    return true
+}
+
+disableCheckpoint()
+{
+    if(!checkHandles())
+        return false
+    dwAddress := readDWORD(hGTA, dwSAMP + ADDR_SAMP_INCHAT_PTR) ;misc info
+    if(ErrorLevel || dwAddress==0) {
+        ErrorLevel := ERROR_READ_MEMORY
+        return false
+    }
+    VarSetCapacity(enablecp, 4, 0)
+    NumPut(0,enablecp,0,"Int")
+    writeRaw(hGTA, dwAddress+0x24, &enablecp, 4)
+    ErrorLevel := ERROR_OK
+    return true
+}
+
+IsMarkerCreated(){
+    If(!checkHandles())
+        return false
+    active := readMem(hGTA, CheckpointCheck, 1, "byte")
+    If(!active)
+        return 0
+    else return 1
+}
+CoordsFromRedmarker(){
+    if(!checkhandles())
+        return false
+    for i, v in rmaddrs
+    f%i% := readFloat(hGTA, v)
+    return [f1, f2, f3]
+}
 ; ##### Positionsbestimmung #####
 getCoordinates() {
     if(!checkHandles())
@@ -2963,7 +3078,42 @@ getPlayerCity()
 	aktPos := getCoordinates()
 	return calculateCity(aktPos[1], aktPos[2], aktPos[3])
 }
+AntiCrash(){
+    If(!checkHandles())
+        return false
 
+    cReport := ADDR_SAMP_CRASHREPORT
+    writeMemory(hGTA, dwSAMP + cReport, 0x90909090, 4)
+    cReport += 0x4
+    writeMemory(hGTA, dwSAMP + cReport, 0x90, 1)
+    cReport += 0x9
+    writeMemory(hGTA, dwSAMP + cReport, 0x90909090, 4)
+    cReport += 0x4
+    writeMemory(hGTA, dwSAMP + cReport, 0x90, 1)
+}
+
+writeMemory(hProcess,address,writevalue,length=4, datatype="int") {
+  if(!hProcess) {
+    ErrorLevel := ERROR_INVALID_HANDLE
+    return false
+  }
+
+  VarSetCapacity(finalvalue,length, 0)
+  NumPut(writevalue,finalvalue,0,datatype)
+  dwRet :=  DllCall(  "WriteProcessMemory"
+              ,"Uint",hProcess
+              ,"Uint",address
+              ,"Uint",&finalvalue
+              ,"Uint",length
+              ,"Uint",0)
+  if(dwRet == 0) {
+    ErrorLevel := ERROR_WRITE_MEMORY
+    return false
+  }
+
+  ErrorLevel := ERROR_OK
+  return true
+}
 ; ##### Sonstiges #####
 checkHandles() {
     if(iRefreshHandles+500>A_TickCount)
