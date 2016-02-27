@@ -1,6 +1,12 @@
-R14
+R14 DEV
 
-Coming Soon ;)
+Bugfix IsPlayerDriver
+
+Anticrash added. Damit braucht ihr keine Anticrash.asi mehr
+
+DialogTitleInfo u. DialogTextInfo added (ungetestet bitte testen)
+
+Kleine Überraschung. Nicht öffentlich gelistet :D
 
 
 R13
