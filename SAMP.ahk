@@ -1,4 +1,4 @@
-; #### SAMP UDF R14 Dev####
+; #### SAMP UDF R14 ####
 ; SAMP Version: 0.3.7
 ; Written by Chuck_Floyd 
 ; https://github.com/FrozenBrain
