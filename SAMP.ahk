@@ -68,7 +68,8 @@ global FUNC_SAMP_ADDTOCHATWND           := 0x64520
 global ADDR_SAMP_CHATMSG_PTR            := 0x21a0e4
 global FUNC_SAMP_SHOWGAMETEXT           := 0x9c2c0
 global FUNC_SAMP_SHOWDIALOG             := 0x6B9C0
-global ADDR_SAMP_SHOWDLG_PTR            := 0x21a0b8
+global ADDR_SAMP_SHOWDLG_PTR            := 0x21A0B8
+global SAMP_DIALOG_TEXTINFO 		:= 0x21A0FC
 global FUNC_SAMP_PLAYAUDIOSTR           := 0x62da0
 global FUNC_SAMP_STOPAUDIOSTR           := 0x629a0
 global FUNC_UPDATESCOREBOARD                := 0x8A10
@@ -123,16 +124,16 @@ global iUpdateTick := 2500 ;time in ms, used for getPlayerNameById etc. to refre
 ; #     - getId()                                   Liest die Id des Spielers aus                                               #
 ; #     - SendChat(wText)                           Sendet eine Nachricht od. einen Befehl direkt an den Server                 #
 ; #     - addChatMessage(wText)                     Fügt eine Zeile in den Chat ein (nur für den Spieler sichtbar)              #
-; #     - showGameText(wText, dwTime, dwTextsize)   Zeigt einen Text inmitten des Bildschirmes an  					            #
-; #     - showDialog(dwStyle, wCaption, wInfo, wButton1) Zeigt einen Dialog an					 	                            #
-; #		- DialogTitleInfo()							Zeigt den Title des Dialogs an												#
-; #		- DialogTextInfo()							Zeigt den Text im Dialog an												#
+; #     - showGameText(wText, dwTime, dwTextsize)   Zeigt einen Text inmitten des Bildschirmes an  			        #
+; #     - showDialog(dwStyle, wCaption, wInfo, wButton1) Zeigt einen Dialog an			                                #
+; #	- DialogTitleInfo()			    Zeigt den Title des Dialogs an						#
+; #	- DialogTextInfo()			    Zeigt den Text im Dialog an							#
 ; #     - playAudioStream(wUrl)                     Spielt einen "Audio Stream" ab                                              #
 ; #     - stopAudioStream()                         Stoppt den aktuellen Audio Stream                                           #
-; #	    - GetChatLine(Line, Output)		            Liest die eingestellte Zeile aus,				                            #
-; #						                            Optionale Parameter (timestamp=0, color=0)			                        #
-; # 	- blockChatInput() 							Eine Funktion um Messages zum Server zu blockieren			                #
-; # 	- unBlockChatInput() 						Eine Funktion um Messages zum Server zu entblockieren			            #
+; #	- GetChatLine(Line, Output)	            Liest die eingestellte Zeile aus,						#
+; #						    Optionale Parameter (timestamp=0, color=0)			                #
+; # 	- blockChatInput() 			    Eine Funktion um Messages zum Server zu blockieren	                        #
+; # 	- unBlockChatInput() 			    Eine Funktion um Messages zum Server zu entblockieren		        #
 ; # --------------------------------------------------------------------------------------------------------------------------- #
 ; # 														                                                                    #
 ; #     - getServerName()                           Ermittelt den Server-Namen (HostName)  										#
@@ -500,7 +501,7 @@ DialogTitleInfo()
 {
 	if(!checkHandles())
 		return ""
-	dwAddress := readDWORD(hGTA, dwSAMP + SAMP_DIALOG_TITLEINFO)
+	dwAddress := readDWORD(hGTA, dwSAMP + 0x21A0B8)
 	if(ErrorLevel) {
 		ErrorLevel := ERROR_READ_MEMORY
 		return ""
