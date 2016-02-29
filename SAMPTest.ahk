@@ -1,10 +1,43 @@
-SendMode Input
-SetWorkingDir %A_ScriptDir%
+if not A_IsAdmin
+{
+Run *RunAs "%A_ScriptFullPath%"
+ExitApp
+}
 #Warn
 #UseHook
 #NoEnv
 #SingleInstance force
 #include %A_ScriptDir%\SAMP.ahk
+SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+;SetTimer, Overlay, 1000000
+
+IniRead, Nickname, Daten.ini, Ingame Daten:, Nickname
+Gui, Add, Text, x10 y5, -: /lock
+Gui, Add, Edit, x100 y70 w140 h20 vnamen, %Nickname%
+Gui, Add, Button, x40 y30 w140 h20 grefresh, reloaden
+Gui, Add, Button, x100 y100 w140 h20 gSavetest, Speichern
+Gui, Add, Button, x40 y100 w140 h20 gconnect, samp starten
+AntiCrash()
+Gui, Show, , blabla
+return
+Savetest:
+GuiControlGet,Nickname ,,Namen
+IniWrite, %Nickname%, Daten.ini, Ingame Daten: , Nickname
+return
+connect:
+RegRead GTA_SA_EXE, HKEY_CURRENT_USER, Software\SAMP, gta_sa_exe
+SplitPath, GTA_SA_EXE,, PFAD
+Run %Pfad%\samp.exe 127.0.0.1:7777, %PFAD%
+Return
+
+refresh:
+Reload
+Return
+
+GuiClose:
+ExitApp
+return
 
 Hotkey, Enter, Off
 Hotkey, Escape, Off
@@ -78,7 +111,7 @@ return
 Numpad5::
 if ( isInChat() )
 return
-addChatMessage("{FFFFFF}IP: {FF0000}" getIP() "{FFFFFF}, Hostname: {FF0000}" getHostname())
+addChatMessage("{FFFFFF}IP: {FF0000}" getServerIP() "{FFFFFF}, Hostname: {FF0000}" getServerName())
 addChatMessage("{FFFFFF}Name: {FF0000}" getUsername())
 addChatMessage("{FFFFFF}HP: {FF0000}" getPlayerHealth() "{FFFFFF}, ARMOR: {FF0000}" getPlayerArmor())
 pos := getCoordinates()
@@ -98,7 +131,7 @@ Numpad7::
 addChatMessage("{FFFFFF}Vehicle Type:" getVehicleType())
 addChatMessage("{FFFFFF}Model:" getVehicleModelId())
 addChatMessage("{FFFFFF}Model Name:" getVehicleModelName())
-addChatMessage("{FFFFFF}Is Driver:" isPlayerDriver())
+addChatMessage("{FFFFFF}Is Driver:" isPlayerDriver() " | 0 nein, 1ja")
 addChatMessage("{FFFFFF}Light State:" getVehicleLightState())
 addChatMessage("{FFFFFF}Engine State:" getVehicleEngineState())
 addChatMessage("{FFFFFF}Door State:" getVehicleLockState())
@@ -107,13 +140,4 @@ return
 Numpad8::
 Count := CountOnlinePlayers()
 AddChatMessage("Es sind " Count " Spieler Online.")
-return
-
-Numpad9::
-addChatMessage("{FFFFFF}block chat " (blchat ? "{FF0000}off" : "{00FF00}on"))
-if(blchat)
-	unBlockChatInput()
-else
-	blockChatInput()
-blchat:=!blchat
 return

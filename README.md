@@ -1,9 +1,9 @@
 SAMP UDF für AutoHotKey
 =======================
-Version R 13
+Version R 14
 ----------
 
-Hier geht's lang zum [Wiki](http://wiki.samp-udf.net/index.php?title=Hauptseite) und [Forum](http://forum.samp-udf.net)
+Hier geht's lang zum [Wiki](http://wiki.samp-udf.net/index.php?title=Hauptseite) und [Forum](https://forum.samp-udf.net)
 ---
 
 Deutsch
