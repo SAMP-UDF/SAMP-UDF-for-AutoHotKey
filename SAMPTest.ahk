@@ -72,7 +72,7 @@ return
 ;#########################################################################################################
 
 
-;Gebt einen Spielernamen ein, um weitere Infos über diesen Spieler zu bekommen
+;Gebt einen Spielernamen ein, um weitere Infos Ã¼ber diesen Spieler zu bekommen
 Numpad1::
 SendInput tName:{Space}
 Suspend On
@@ -85,7 +85,7 @@ varID := getPlayerIdByName(varName)
 showGameText(getPlayerNameById(varID) "~n~Score: " getPlayerScoreById(varID) "~n~Ping: " getPlayerPingById(varID), 2000, 5)
 return
 
-;Gebt eine ID ein, um weitere Infos über diesen Spieler zu bekommen
+;Gebt eine ID ein, um weitere Infos Ã¼ber diesen Spieler zu bekommen
 Numpad2::
 SendInput tID:{Space}
 Suspend On
@@ -107,7 +107,7 @@ Numpad4::
 stopAudioStream()
 return
 
-;Zeigt diverse Infos über die eigene Spielerfigur an
+;Zeigt diverse Infos Ã¼ber die eigene Spielerfigur an
 Numpad5::
 if ( isInChat() )
 return
@@ -122,9 +122,61 @@ showGameText("test", 2000, 5)
 return
 
 ;Zeigt eine Dialog-Box an
-Numpad6::
-showDialog(0, "Titel", "some text...", "OK" )
+#If !isInChat()
+1::
+	showDialog(DIALOG_STYLE_LIST, "Keybinder Menü", "Funktion1`nFunktion2`nFunktion3", "Weiter", "Schließen")
 return
+#If isDialogOpen() && WinActive("GTA:SA:MP")
+Enter::
+	OnDialogResponse(true)
+return
+ESC::
+	OnDialogResponse(false)
+return
+#If
+OnDialogResponse(response) {
+	caption := getDialogCaption()
+	if (response) {
+		if (caption == "Keybinder Menü") {
+			line := getDialogLine(getDialogIndex())
+			if (line == "Funktion1") {
+				showDialog(DIALOG_STYLE_LIST, "Keybinder - Funktion1", "Test1`nTest2`nTest3", "Weiter", "Schließen")
+			}
+			else if (line == "Funktion2") {
+				showDialog(DIALOG_STYLE_INPUT, "Keybinder - Funktion2", "Gebe einen Text ein: ", "Ok", "Schließen")
+			}
+		}
+		else if (caption == "Keybinder - Funktion1") {
+			line := getDialogLine(getDialogIndex())
+			AddChatMessage(line)
+			Send, {Enter}
+		}
+		else if (caption == "Keybinder - Funktion2") {
+			clipboardBuffer := ClipboardAll
+			clipboard := ""
+			Send, ^{A}
+			Send, ^{X}
+			sleep, 100
+			dialogInput := clipboard
+			clipboard := clipboardBuffer
+			if (dialogInput != -1 && dialogInput != "") {
+				AddChatMessage("Dialog Input: " dialogInput)
+			}
+			Send, {Enter}
+		}
+		else
+			Send, {Enter}
+	}
+	else {
+		if (caption == "Keybinder - Funktion1") {
+			showDialog(DIALOG_STYLE_LIST, "Keybinder Menü", "Funktion1`nFunktion2`nFunktion3", "Weiter", "Schließen")
+		}
+		else
+			Send, {ESC}
+	}
+	return
+}
+
 
 ;show some info about the current vehicle
 Numpad7::
