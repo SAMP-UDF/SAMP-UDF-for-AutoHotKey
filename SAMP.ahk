@@ -2568,7 +2568,7 @@ setDialogID(id) {
 	if (ErrorLevel || !dwPointer)
 		return false
 
-	writeMem(hGTA, dwPointer + SAMP_DIALOG_ID_OFFSET, id, "UInt", 4)
+	writeMemory(hGTA, dwPointer + SAMP_DIALOG_ID_OFFSET, id, "UInt", 4)
 	if (ErrorLevel) {
 		ErrorLevel := ERROR_WRITE_MEMORY
 		return false
