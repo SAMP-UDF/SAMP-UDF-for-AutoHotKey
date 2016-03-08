@@ -1,3 +1,33 @@
+R15
+
+isDialogOpen() - Prüft, ob gerade ein Dialog angezeigt wird (gibt true oder false zurück)			
+
+getDialogStyle() - Liest den Typ des (zuletzt) angezeigten Dialogs aus (0-5)						
+
+getDialogID() - Liest die ID des (zuletzt) angezeigten Dialogs aus (auch vom Server)			
+
+setDialogID(id) - Setzt die ID des (zuletzt) angezeigten Dialogs auf [id]							
+
+getDialogIndex() - Liest die (zuletzt) ausgewählte Zeile des Dialogs aus 							
+
+getDialogCaption() - Liest die Überschrift des (zuletzt) angezeigten Dialogs aus 					
+
+getDialogText() - Liest den Text des (zuletzt) angezeigten Dialogs aus (auch bei Listen)			
+
+getDialogLineCount() - Liest die Anzahl der Zeilen/Items des (zuletzt) angezeigten Dialogs aus	
+
+getDialogLine(index) - Liest die Zeile an der Stelle [index] mittels getDialogText aus 			
+
+getDialogLines() - Liest die Zeilen mittels getDialogText aus (gibt ein Array zurück)			
+
+isDialogButton1Selected() - Prüft, ob Button1 des Dialogs ausgewählt ist 							
+
+getDialogStructPtr() - Liest den Base Pointer zur Dialogstruktur aus (intern genutzt)	
+
+showDialog(style, caption, text, button1, button2, id) - Zeigt einen Dialog an (nur lokal)	- Nun mit 2 Buttons
+
+
+
 R14
 
 Bugfix IsPlayerDriver
