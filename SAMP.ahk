@@ -8,7 +8,7 @@
 ; https://github.com/paul-phoenix
 ; Modified by: Agrippa1994
 ; https://github.com/agrippa1994
-; Modified by: Lezik and SCP
+; Modified by: RawDev and ELon
 ; Do not remove these lines.
 ; ####################
 
@@ -67,10 +67,34 @@ global FUNC_SAMP_SENDSAY                := 0x57f0
 global FUNC_SAMP_ADDTOCHATWND           := 0x64520
 global ADDR_SAMP_CHATMSG_PTR            := 0x21a0e4
 global FUNC_SAMP_SHOWGAMETEXT           := 0x9c2c0
-global FUNC_SAMP_SHOWDIALOG             := 0x6B9C0
-global ADDR_SAMP_SHOWDLG_PTR            := 0x21a0b8
 global FUNC_SAMP_PLAYAUDIOSTR           := 0x62da0
 global FUNC_SAMP_STOPAUDIOSTR           := 0x629a0
+; ########################## Dialog Styles ##########################
+global DIALOG_STYLE_MSGBOX			:= 0
+global DIALOG_STYLE_INPUT 			:= 1
+global DIALOG_STYLE_LIST			:= 2
+global DIALOG_STYLE_PASSWORD		:= 3
+global DIALOG_STYLE_TABLIST			:= 4
+global DIALOG_STYLE_TABLIST_HEADERS	:= 5
+
+
+; ######################### Dialog Structure #########################
+global SAMP_DIALOG_STRUCT_PTR					:= 0x21A0B8
+global SAMP_DIALOG_PTR1_OFFSET				:= 0x1C
+global SAMP_DIALOG_LINES_OFFSET 			:= 0x44C
+global SAMP_DIALOG_INDEX_OFFSET				:= 0x443
+global SAMP_DIALOG_BUTTON_HOVERING_OFFSET	:= 0x465
+global SAMP_DIALOG_BUTTON_CLICKED_OFFSET	:= 0x466
+global SAMP_DIALOG_PTR2_OFFSET 				:= 0x20
+global SAMP_DIALOG_LINECOUNT_OFFSET			:= 0x150
+global SAMP_DIALOG_OPEN_OFFSET				:= 0x28
+global SAMP_DIALOG_STYLE_OFFSET				:= 0x2C
+global SAMP_DIALOG_ID_OFFSET				:= 0x30
+global SAMP_DIALOG_TEXT_PTR_OFFSET			:= 0x34
+global SAMP_DIALOG_CAPTION_OFFSET			:= 0x40
+global FUNC_SAMP_SHOWDIALOG				 	:= 0x6B9C0
+global FUNC_SAMP_CLOSEDIALOG				:= 0x6C040
+
 global FUNC_UPDATESCOREBOARD                := 0x8A10
 global SAMP_INFO_OFFSET                     := 0x21A0F8
 global ADDR_SAMP_CRASHREPORT 				:= 0x5CF2C
@@ -117,16 +141,13 @@ global iUpdateTick := 2500 ;time in ms, used for getPlayerNameById etc. to refre
 ; ###############################################################################################################################
 ; # 														                                                                    #
 ; # SAMP-Funktionen:                                                                                                            #
-; #     - IsSAMPAvailable()                         Prüft, ob man in den Chat schreiben kann & ob GTA geladen ist               #
-; #     - isInChat()                                Prüft, ob der Spieler gerade chattet oder in einem Dialog ist               #
+; #     - IsSAMPAvailable()                         PrÃ¼ft, ob man in den Chat schreiben kann & ob GTA geladen ist              #
+; #     - isInChat()                                PrÃ¼ft, ob der Spieler gerade chattet oder in einem Dialog ist              #
 ; #     - getUsername()                             Liest den Namen des Spielers aus                                            #
 ; #     - getId()                                   Liest die Id des Spielers aus                                               #
 ; #     - SendChat(wText)                           Sendet eine Nachricht od. einen Befehl direkt an den Server                 #
-; #     - addChatMessage(wText)                     Fügt eine Zeile in den Chat ein (nur für den Spieler sichtbar)              #
+; #     - addChatMessage(wText)                     FÃ¼gt eine Zeile in den Chat ein (nur fÃ¼r den Spieler sichtbar)            #
 ; #     - showGameText(wText, dwTime, dwTextsize)   Zeigt einen Text inmitten des Bildschirmes an  					            #
-; #     - showDialog(dwStyle, wCaption, wInfo, wButton1) Zeigt einen Dialog an					 	                            #
-; #		- DialogTitleInfo()							Zeigt den Title des Dialogs an												#
-; #		- DialogTextInfo()							Zeigt den Text im Dialog an												#
 ; #     - playAudioStream(wUrl)                     Spielt einen "Audio Stream" ab                                              #
 ; #     - stopAudioStream()                         Stoppt den aktuellen Audio Stream                                           #
 ; #	    - GetChatLine(Line, Output)		            Liest die eingestellte Zeile aus,				                            #
@@ -151,13 +172,31 @@ global iUpdateTick := 2500 ;time in ms, used for getPlayerNameById etc. to refre
 ; #     - unPatchRadio() (interner stuff)											                                            #
 ; # 														                                                                    #
 ; ###############################################################################################################################
+; # SAMP Dialog Funktionen (v0.3.7):																	                        #
+; # --------------------------------------------------------------------------------------------------------------------------- #
+; #	- isDialogOpen() - Prüft, ob gerade ein Dialog angezeigt wird (gibt true oder false zurück)	                        		#
+; #	- getDialogStyle() - Liest den Typ des (zuletzt) angezeigten Dialogs aus (0-5)                      						#
+; #	- getDialogID() - Liest die ID des (zuletzt) angezeigten Dialogs aus (auch vom Server)	                        			#
+; #	- setDialogID(id) - Setzt die ID des (zuletzt) angezeigten Dialogs auf [id]				                        			#
+; #	- getDialogIndex() - Liest die (zuletzt) ausgewählte Zeile des Dialogs aus 				                        			#
+; #	- getDialogCaption() - Liest die Überschrift des (zuletzt) angezeigten Dialogs aus 			                        		#
+; #	- getDialogText() - Liest den Text des (zuletzt) angezeigten Dialogs aus (auch bei Listen)                              	#
+; #	- getDialogLineCount() - Liest die Anzahl der Zeilen/Items des (zuletzt) angezeigten Dialogs aus                        	#
+; #	- getDialogLine(index) - Liest die Zeile an der Stelle [index] mittels getDialogText aus 		                        	#
+; #	- getDialogLines() - Liest die Zeilen mittels getDialogText aus (gibt ein Array zurück)			                        	#
+; #	- isDialogButton1Selected() - Prüft, ob Button1 des Dialogs ausgewählt ist 						                        	#
+; # - getDialogStructPtr() - Liest den Base Pointer zur Dialogstruktur aus (intern genutzt)			                        	#
+; #																									                        	#
+; #	- showDialog(style, caption, text, button1, button2, id) - Zeigt einen Dialog an (nur lokal)	                        	#
+; ###############################################################################################################################
+; ###############################################################################################################################
 ; # 														                                                                    #
 ; # Extra-Player-Funktionen:                                                                                                    #
 ; #	    - getTargetPed(dwPED)   			        Zeigt die PED-ID, des Spielers, auf den man zielt.                          #
 ; #     - getPedById(dwId)                          Zeigt die PED-Id zu der Id.                                                 #
 ; #     - getIdByPed(dwId)                          Zeigt die Id der PED-Id.                                                    #
-; #     - getStreamedInPlayersInfo()                Zeigt Informationen über die gestreamten Spieler.                           #
-; #     - callFuncForAllStreamedInPlayers()         Führt bestimmte Funktionen, für die gestreamten Spieler aus.                #
+; #     - getStreamedInPlayersInfo()                Zeigt Informationen Ã¼ber die gestreamten Spieler.                           #
+; #     - callFuncForAllStreamedInPlayers()         FÃ¼hrt bestimmte Funktionen, fÃ¼r die gestreamten Spieler aus.                #
 ; #	    - getDist(pos1,pos2)   			            Rechnet den Abstand zwischen zwei Positionen aus.                           #
 ; #     - getClosestPlayerPed()                     Zeigt die PED-ID, des Spielers, der am nahesten zu einem steht.             #
 ; #     - getClosestPlayerId()                      Zeigt die Id, des Spielers, der am nahesten zu einem steht.                 #
@@ -208,14 +247,14 @@ global iUpdateTick := 2500 ;time in ms, used for getPlayerNameById etc. to refre
 ; # 														                                                                    #
 ; # Spielerfunktionen:                                                                                                          #
 ; #     - getPlayerHealth()                         Ermittelt die HP des Spielers                                               #
-; #     - getPlayerArmour()                         Ermittelt den Rüstungswert des Spielers                                     #
+; #     - getPlayerArmour()                         Ermittelt den RÃ¼stungswert des Spielers                                     #
 ; # 	- getPlayerInteriorId()			            Ermittelt die Interior ID wo der Spieler ist 		                        #
 ; # 	- getPlayerSkinId()			                Ermittelt die Skin ID des Spielers           		                        #
 ; # 	- getPlayerMoney() 			                Ermittelt den Kontostand des Spielers (nur GTA Intern)                      #
 ; #	    - getPlayerWanteds()			            Ermittelt die Wantedanzahl des Spielers (nur bis 6 Wanteds)                 #
 ; #	    - getPlayerWeaponId()			            Ermittelt die Waffen ID des Spielers                                        #
 ; #	    - getPlayerWeaponName()			            Ermittelt den Namen, der Waffe des Spielers                                 #
-; #	    - getPlayerState()			                Ermittelt den "Status" des Spielers (Zu Fuß, Fahrer, Tot)                   #
+; #	    - getPlayerState()			                Ermittelt den "Status" des Spielers (Zu FuÃŸ, Fahrer, Tot)                   #
 ; #	    - getPlayerMapPosX()			            Ermittelt die X-Position auf der Map im Menu                                #
 ; #	    - getPlayerMapPosY()			            Ermittelt die Y-Position auf der Map im Menu                                #
 ; #	    - getPlayerMapZoom()			            Ermittelt den Zoom auf der Map im Menu                                      #
@@ -243,26 +282,26 @@ global iUpdateTick := 2500 ;time in ms, used for getPlayerNameById etc. to refre
 ; # 														                                                                    #
 ; # Standpunktbestimmung:                                                                                                       #
 ; #     - getCoordinates()                          Ermittelt die aktuelle Position (Koordinaten)                               #
-; #	    - getPlayerPos(X,Y,Z) 			            siehe oben drüber 						                                    #
+; #	    - getPlayerPos(X,Y,Z) 			            siehe oben drÃ¼ber 						                                    #
 ; # 														                                                                    #
 ; # --------------------------------------------------------------------------------------------------------------------------- #
 ; # 														                                                                    #
 ; #     - initZonesAndCities()                      Initialisiert eine Liste aller Standartgebiete                              #
-; #                                                 (Voraussetzung für die folgenden Funktionen dieser Kategorie)               #
+; #                                                 (Voraussetzung fÃ¼r die folgenden Funktionen dieser Kategorie)               #
 ; #     - calculateZone(X, Y, Z)                    Bestimmt die Zone (= Stadtteil) aus den geg. Koordinaten                    #
 ; #     - calculateCity(X, Y, Z)                    Bestimmt die Stadt aus den geg. Koordinaten                                 #
 ; #     - getCurrentZonecode()                      Ermittelt die aktulle Zone in Kurzform                                      #
-; #     - AddZone(Name, X1, Y1, Z1, X2, Y2, Z2)     Fügt eine Zone zum Index hinzu                                              #
-; #     - AddCity(Name, X1, Y1, Z1, X2, Y2, Z2)     Fügt eine Stadt zum Index hinzu                                             #
-; #	    - IsPlayerInRangeOfPoint(X, Y, Z, Radius)   Bestimmt ob der Spieler in der Nähe der Koordinaten ist                     #
-; #	    - IsIsPlayerInRangeOfPoint2D(X, Y, Radius)  Bestimmt ob der Spieler in der Nähe der Koordinaten ist                     #
+; #     - AddZone(Name, X1, Y1, Z1, X2, Y2, Z2)     FÃ¼gt eine Zone zum Index hinzu                                              #
+; #     - AddCity(Name, X1, Y1, Z1, X2, Y2, Z2)     FÃ¼gt eine Stadt zum Index hinzu                                             #
+; #	    - IsPlayerInRangeOfPoint(X, Y, Z, Radius)   Bestimmt ob der Spieler in der NÃ¤he der Koordinaten ist                     #
+; #	    - IsIsPlayerInRangeOfPoint2D(X, Y, Radius)  Bestimmt ob der Spieler in der NÃ¤he der Koordinaten ist                     #
 ; #	    - getPlayerZone()                   				                                                                    #
 ; #	    - getPlayerCity()                   					                                                                #
 ; # 														                                                                    #
 ; ###############################################################################################################################
 ; # Sonstiges:                                                                                                                  #
 ; #     - checkHandles()                                                                                                        #
-; #     - AntiCrash()								Hilft gegen das abstürzen bei Warningscodes                                 #
+; #     - AntiCrash()								Hilft gegen das abstÃ¼rzen bei Warningscodes                                 #
 ; ###############################################################################################################################
 ; # Speicherfunktionen (intern genutzt):                                                                                        #
 ; # Memory Functions:                                                                                                           #
@@ -410,111 +449,6 @@ showGameText(wText, dwTime, dwSize) {
     ErrorLevel := ERROR_OK
     return true
 }
-
-showDialog(dwStyle, wCaption, wInfo, wButton1 ) {
-    dwStyle += 0
-    dwStyle := Floor(dwStyle)
-    wCaption := "" wCaption
-    wInfo := "" wInfo
-    wButton1 := "" wButton1
-    
-    if(dwStyle<0 || dwStyle>5 || StrLen(wCaption)>=64 || StrLen(wInfo)>=4096 || StrLen(wButton1)>10)
-        return false
-
-    if(!checkHandles())
-        return false
-    
-    
-    dwFunc := dwSAMP + FUNC_SAMP_SHOWDIALOG
-    
-    dwAddress := readDWORD(hGTA, dwSAMP + ADDR_SAMP_SHOWDLG_PTR)
-    if(ErrorLevel || dwAddress==0) {
-        ErrorLevel := ERROR_READ_MEMORY
-        return false
-    }
-    
-    writeString(hGTA, pParam5, wCaption)
-    if(ErrorLevel)
-        return false
-    writeString(hGTA, pParam1, wInfo)
-    if(ErrorLevel)
-        return false
-    writeString(hGTA, pParam5+512, wButton1)
-    if(ErrorLevel)
-        return false
-    
-    ;mov + 7*push + call + retn
-    dwLen := 5 + 7*5 + 5 + 1
-    
-    
-    VarSetCapacity(injectData, dwLen, 0)
-    
-    NumPut(0xB9, injectData, 0, "UChar")        ;0 + 1        ;mov ecx
-    NumPut(dwAddress, injectData, 1, "UInt")    ;1 + 4
-    NumPut(0x68, injectData, 5, "UChar")        ;5 + 1        ;push 0
-    NumPut(0, injectData, 6, "UInt")            ;6 + 4
-    NumPut(0x68, injectData, 10, "UChar")        ;10 + 1        ;push 0
-    NumPut(pParam5+StrLen(wCaption), injectData, 11, "UInt")            ;11 + 4
-    NumPut(0x68, injectData, 15, "UChar")        ;15 + 1        ;push button1
-    NumPut(pParam5+512, injectData, 16, "UInt")        ;16 + 4
-    NumPut(0x68, injectData, 20, "UChar")        ;20 + 1        ;push info
-    NumPut(pParam1, injectData, 21, "UInt")        ;21 + 4
-    NumPut(0x68, injectData, 25, "UChar")        ;25 + 1        ;push caption
-    NumPut(pParam5, injectData, 26, "UInt")        ;26 + 4
-    NumPut(0x68, injectData, 30, "UChar")        ;30 + 1        ;push style
-    NumPut(dwStyle, injectData, 31, "UInt")        ;31 + 4
-    NumPut(0x68, injectData, 35, "UChar")        ;35 + 1        ;push 1
-    NumPut(1, injectData, 36, "UInt")            ;36 + 4
-    
-    NumPut(0xE8, injectData, 40, "UChar")        ;40 + 1     ;call
-    offset := dwFunc - (pInjectFunc + 45)
-    NumPut(offset, injectData, 41, "Int")        ;41 + 4
-    NumPut(0xC3, injectData, 45, "UChar")        ;45 + 1        ;retn
-    
-    writeRaw(hGTA, pInjectFunc, &injectData, dwLen)
-    if(ErrorLevel)
-        return false
-    
-    hThread := createRemoteThread(hGTA, 0, 0, pInjectFunc, 0, 0, 0)
-    if(ErrorLevel)
-        return false
-    
-    waitForSingleObject(hThread, 0xFFFFFFFF)
-    
-    closeProcess(hThread)
-    
-    return true
-}
-
-DialogTextInfo(){
-    if(!checkHandles())
-        return 0
-
-    DialogInfo      := readDWORD(hGTA, dwSAMP + SAMP_DIALOG_TEXTINFO)
-    DialogOffset    := readDWORD(hGTA, DialogInfo + 0x1C)
-    dialog_text     := readString(hGTA, DialogOffset, 4096)
-    msgbox % dialog_text ; Ausgabe des Textes
-}
- 
-DialogTitleInfo()
-{
-	if(!checkHandles())
-		return ""
-	dwAddress := readDWORD(hGTA, dwSAMP + SAMP_DIALOG_TITLEINFO)
-	if(ErrorLevel) {
-		ErrorLevel := ERROR_READ_MEMORY
-		return ""
-	}
-	text := readString(hGTA, dwAddress + 0x40, 128)
-	if(ErrorLevel) {
-		ErrorLevel := ERROR_READ_MEMORY
-		return ""
-	}
-
-	ErrorLevel := ERROR_OK
-	return text
-}
-
 
 playAudioStream(wUrl) {
     wUrl := "" wUrl
@@ -1495,7 +1429,7 @@ getTargetVehicleSpeedByPed(dwPED) {
     fSpeedZ := readMem(hGTA, dwAddr + ADDR_VEHICLE_Z, 4, "float")
     
     fVehicleSpeed :=  sqrt((fSpeedX * fSpeedX) + (fSpeedY * fSpeedY) + (fSpeedZ * fSpeedZ))
-    fVehicleSpeed := (fVehicleSpeed * 100) * 1.43           ;Der Wert "1.43" ist meistens auf jedem Server anders. Die Geschwindigkeit wird somit erhöht bzw. verringert
+    fVehicleSpeed := (fVehicleSpeed * 100) * 1.43           ;Der Wert "1.43" ist meistens auf jedem Server anders. Die Geschwindigkeit wird somit erhÃ¶ht bzw. verringert
  
 	return fVehicleSpeed
 }
@@ -1511,7 +1445,7 @@ getTargetVehicleSpeedById(dwId) {
     fSpeedZ := readMem(hGTA, dwAddr + ADDR_VEHICLE_Z, 4, "float")
     
     fVehicleSpeed :=  sqrt((fSpeedX * fSpeedX) + (fSpeedY * fSpeedY) + (fSpeedZ * fSpeedZ))
-    fVehicleSpeed := (fVehicleSpeed * 100) * 1.43           ;Der Wert "1.43" ist meistens auf jedem Server anders. Die Geschwindigkeit wird somit erhöht bzw. verringert
+    fVehicleSpeed := (fVehicleSpeed * 100) * 1.43           ;Der Wert "1.43" ist meistens auf jedem Server anders. Die Geschwindigkeit wird somit erhÃ¶ht bzw. verringert
  
 	return fVehicleSpeed
 }
@@ -2403,7 +2337,7 @@ getVehicleSpeed() {
     fSpeedZ := readMem(hGTA, dwAddr + ADDR_VEHICLE_Z, 4, "float")
     
     fVehicleSpeed :=  sqrt((fSpeedX * fSpeedX) + (fSpeedY * fSpeedY) + (fSpeedZ * fSpeedZ))
-    fVehicleSpeed := (fVehicleSpeed * 100) * 1.43           ;Der Wert "1.43" ist meistens auf jedem Server anders. Die Geschwindigkeit wird somit erhöht bzw. verringert
+    fVehicleSpeed := (fVehicleSpeed * 100) * 1.43           ;Der Wert "1.43" ist meistens auf jedem Server anders. Die Geschwindigkeit wird somit erhÃ¶ht bzw. verringert
  
 	return fVehicleSpeed
 }
@@ -2566,6 +2500,351 @@ GetPlayerPos(ByRef fX,ByRef fY,ByRef fZ) {
  
         ErrorLevel := ERROR_OK
 }
+
+; ######################### Dialog Functions #########################
+getDialogStructPtr() {
+	if (!checkHandles()) {
+		ErrorLevel := ERROR_INVALID_HANDLE
+		return false
+	}
+
+	dwPointer := readDWORD(hGTA, dwSAMP + SAMP_DIALOG_STRUCT_PTR)
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return false
+	}
+
+	ErrorLevel := ERROR_OK
+	return dwPointer
+}
+
+isDialogOpen() {
+	dwPointer := getDialogStructPtr()
+	if (ErrorLevel || !dwPointer)
+	return false
+
+	dwIsOpen := readMem(hGTA, dwPointer + SAMP_DIALOG_OPEN_OFFSET, 4, "UInt")
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return false
+	}
+	
+	ErrorLevel := ERROR_OK
+	return dwIsOpen ? true : false
+}
+
+getDialogStyle() {
+	dwPointer := getDialogStructPtr()
+	if (ErrorLevel || !dwPointer)
+		return -1
+
+	style := readMem(hGTA, dwPointer + SAMP_DIALOG_STYLE_OFFSET, 4, "UInt")
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return -1
+	}
+
+	ErrorLevel := ERROR_OK
+	return style
+}
+
+getDialogID() {
+	dwPointer := getDialogStructPtr()
+	if (ErrorLevel || !dwPointer)
+		return -1
+
+	id := readMem(hGTA, dwPointer + SAMP_DIALOG_ID_OFFSET, 4, "UInt")
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return -1
+	}
+
+	ErrorLevel := ERROR_OK
+	return id
+}
+
+setDialogID(id) {
+	dwPointer := getDialogStructPtr()
+	if (ErrorLevel || !dwPointer)
+		return false
+
+	writeMem(hGTA, dwPointer + SAMP_DIALOG_ID_OFFSET, id, "UInt", 4)
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_WRITE_MEMORY
+		return false
+	}
+
+	ErrorLevel := ERROR_OK
+	return true
+}
+
+getDialogIndex() {
+	dwPointer := getDialogStructPtr()
+	if (ErrorLevel || !dwPointer)
+		return 0
+
+	dwPointer := readDWORD(hGTA, dwPointer + SAMP_DIALOG_PTR1_OFFSET)
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return 0
+	}
+
+	index := readMem(hGTA, dwPointer + SAMP_DIALOG_INDEX_OFFSET, 1, "Byte")
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return 0
+	}
+
+	ErrorLevel := ERROR_OK
+	return index + 1
+}
+
+getDialogCaption() {
+	dwPointer := getDialogStructPtr()
+	if (ErrorLevel || !dwPointer)
+		return ""
+
+	text := readString(hGTA, dwPointer + SAMP_DIALOG_CAPTION_OFFSET, 64)
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return ""
+	}
+
+	ErrorLevel := ERROR_OK
+	return text
+}
+
+getDialogTextSize(dwAddress) {
+	i := 0
+	Loop, 4096 {
+		i := A_Index - 1
+		byte := Memory_ReadByte(hGTA, dwAddress + i)
+		if (!byte)
+			break
+	}
+
+	return i
+}
+
+getDialogText() {
+	dwPointer := getDialogStructPtr()
+	if (ErrorLevel || !dwPointer)
+		return ""
+
+	dwPointer := readDWORD(hGTA, dwPointer + SAMP_DIALOG_TEXT_PTR_OFFSET)
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return ""
+	}
+
+	text := readString(hGTA, dwPointer, 4096)
+	if (ErrorLevel) {
+		text := readString(hGTA, dwPointer, getDialogTextSize(dwPointer))
+		if (ErrorLevel) {
+			ErrorLevel := ERROR_READ_MEMORY
+			return ""
+		}
+	}
+
+	ErrorLevel := ERROR_OK
+	return text
+}
+
+getDialogLineCount() {
+	dwPointer := getDialogStructPtr()
+	if (ErrorLevel || !dwPointer)
+		return 0
+
+	dwPointer := readDWORD(hGTA, dwPointer + SAMP_DIALOG_PTR2_OFFSET)
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return 0
+	}
+
+	count := readMem(hGTA, dwPointer + SAMP_DIALOG_LINECOUNT_OFFSET, 4, "UInt")
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return 0
+	}
+
+	ErrorLevel := ERROR_OK
+	return count
+}
+
+getDialogLine__(index) {
+	if (getDialogLineCount > index)
+		return ""
+
+	dwPointer := getDialogStructPtr()
+	if (ErrorLevel || !dwPointer)
+		return ""
+
+	dwPointer := readDWORD(hGTA, dwPointer + SAMP_DIALOG_PTR1_OFFSET)
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return ""
+	}
+
+	dwPointer := readDWORD(hGTA, dwPointer + SAMP_DIALOG_LINES_OFFSET)
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return ""
+	}
+
+	dwLineAddress := readDWORD(hGTA, dwPointer + (index - 1) * 0x4)
+	line := readString(hGTA, dwLineAddress, 128)
+
+	ErrorLevel := ERROR_OK
+	return line
+}
+
+getDialogLine(index) {
+	lines := getDialogLines()
+	if (index > lines.Length())
+		return ""
+
+	if (getDialogStyle() == DIALOG_STYLE_TABLIST_HEADERS)
+		index++
+
+	return lines[index]
+}
+
+getDialogLines() {
+	text := getDialogText()
+	if (text == "")
+		return -1
+
+	lines := StrSplit(text, "`n")
+	return lines
+}
+
+isDialogButton1Selected() {
+	dwPointer := getDialogStructPtr()
+	if (ErrorLevel || !dwPointer)
+		return false
+
+	dwPointer := readDWORD(hGTA, dwPointer + SAMP_DIALOG_PTR1_OFFSET)
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return false
+	}
+
+	selected := readMem(hGTA, dwPointer + SAMP_DIALOG_BUTTON_HOVERING_OFFSET, 1, "Byte")
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return false
+	}
+
+	ErrorLevel := ERROR_OK
+	return selected
+}
+
+getDialogLines__() {
+	count := getDialogLineCount()
+
+	dwPointer := getDialogStructPtr()
+	if (ErrorLevel || !dwPointer)
+		return -1
+
+	dwPointer := readDWORD(hGTA, dwPointer + SAMP_DIALOG_PTR1_OFFSET)
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return -1
+	}
+
+	dwPointer := readDWORD(hGTA, dwPointer + SAMP_DIALOG_LINES_OFFSET)
+	if (ErrorLevel) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return -1
+	}
+
+	lines := []
+	Loop %count% {
+		dwLineAddress := readDWORD(hGTA, dwPointer + (A_Index - 1) * 0x4)
+		lines[A_Index] := readString(hGTA, dwLineAddress, 128)
+	}
+
+	ErrorLevel := ERROR_OK
+	return lines
+}
+
+showDialog(style, caption, text, button1, button2 := "", id := 1) {
+	style += 0
+	style := Floor(style)
+	id += 0
+	id := Floor(id)
+	caption := "" caption
+	text := "" text
+	button1 := "" button1
+	button2 := "" button2
+
+	if (id < 0 || id > 32767 || style < 0 || style > 5 || StrLen(caption) > 64 || StrLen(text) > 4096 || StrLen(button1) > 10 || StrLen(button2) > 10)
+		return false
+
+	if (!checkHandles())
+		return false
+
+	dwFunc := dwSAMP + FUNC_SAMP_SHOWDIALOG
+
+	dwAddress := readDWORD(hGTA, dwSAMP + SAMP_DIALOG_STRUCT_PTR)
+	if (ErrorLevel || !dwAddress) {
+		ErrorLevel := ERROR_READ_MEMORY
+		return false
+	}
+
+	writeString(hGTA, pParam5, caption)
+	if (ErrorLevel)
+		return false
+	writeString(hGTA, pParam1, text)
+	if (ErrorLevel)
+		return false
+	writeString(hGTA, pParam5 + 512, button1)
+	if (ErrorLevel)
+		return false
+	writeString(hGTA, pParam5+StrLen(caption) + 1, button2)
+	if (ErrorLevel)
+		return false
+
+	;mov + 7 * push + call + retn
+	dwLen := 5 + 7 * 5 + 5 + 1
+	VarSetCapacity(injectData, dwLen, 0)
+
+	NumPut(0xB9, injectData, 0, "UChar")							;0 + 1	;mov ecx
+	NumPut(dwAddress, injectData, 1, "UInt")						;1 + 4
+	NumPut(0x68, injectData, 5, "UChar")							;5 + 1	;push send
+	NumPut(1, injectData, 6, "UInt")								;6 + 4
+	NumPut(0x68, injectData, 10, "UChar")							;10 + 1	;push button2
+	NumPut(pParam5 + StrLen(caption) + 1, injectData, 11, "UInt")	;11 + 4
+	NumPut(0x68, injectData, 15, "UChar")							;15 + 1	;push button1
+	NumPut(pParam5 + 512, injectData, 16, "UInt")					;16 + 4
+	NumPut(0x68, injectData, 20, "UChar")							;20 + 1	;push text
+	NumPut(pParam1, injectData, 21, "UInt")							;21 + 4
+	NumPut(0x68, injectData, 25, "UChar")							;25 + 1	;push caption
+	NumPut(pParam5, injectData, 26, "UInt")							;26 + 4
+	NumPut(0x68, injectData, 30, "UChar")							;30 + 1	;push style
+	NumPut(style, injectData, 31, "UInt")							;31 + 4
+	NumPut(0x68, injectData, 35, "UChar")							;35 + 1	;push id
+	NumPut(id, injectData, 36, "UInt")								;36 + 4
+
+	NumPut(0xE8, injectData, 40, "UChar")							;40 + 1 ;call
+	offset := dwFunc - (pInjectFunc + 45)
+	NumPut(offset, injectData, 41, "Int")							;41 + 4
+	NumPut(0xC3, injectData, 45, "UChar")							;45 + 1	;retn
+
+	writeRaw(hGTA, pInjectFunc, &injectData, dwLen)
+	if (ErrorLevel)
+		return false
+
+	hThread := createRemoteThread(hGTA, 0, 0, pInjectFunc, 0, 0, 0)
+	if (ErrorLevel)
+		return false
+
+	waitForSingleObject(hThread, 0xFFFFFFFF)
+	closeProcess(hThread)
+
+	return true
+}
+
 
 initZonesAndCities() {
     AddCity("Las Venturas", 685.0, 476.093, -500.0, 3000.0, 3000.0, 500.0)
