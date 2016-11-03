@@ -1,0 +1,6 @@
+{
+  "name": "Samp-udf-for-autohotkey",
+  "tagline": "[SAMP 0.3.7]Eine Sammlung von Funktionen für die Verbindung von AutoHotKey mit San Andreas Multiplayer.",
+  "body": "# SAMP-UDF\r\n\r\nAn open source API for GTA SA:MP licensed under the terms of the Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) are under their respective licenses.\r\n\r\n## Support Forum\r\n[https://samp-udf.net](https://samp-udf.net)\r\n\r\n### Documentation\r\n\r\n[https://wiki.samp-udf.net](https://wiki.samp-udf.net)",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
