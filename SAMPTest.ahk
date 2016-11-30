@@ -72,7 +72,7 @@ return
 ;#########################################################################################################
 
 
-;Gebt einen Spielernamen ein, um weitere Infos Ã¼ber diesen Spieler zu bekommen
+;Gebt einen Spielernamen ein, um weitere Infos über diesen Spieler zu bekommen
 Numpad1::
 SendInput tName:{Space}
 Suspend On
@@ -80,12 +80,11 @@ Hotkey, Enter, On
 Hotkey, Escape, On
 Input varName, V I M,{enter}
 SendInput {end}+{home}{Del}{esc}
-;updateScoreboardData() ;wird nun implizit aufgerufen
-varID := getPlayerIdByName(varName)
-showGameText(getPlayerNameById(varID) "~n~Score: " getPlayerScoreById(varID) "~n~Ping: " getPlayerPingById(varID), 2000, 5)
+varID := GetPlayerIdByName(varName)
+ShowGameText(GetPlayerNameById(varID) "~n~Score: " GetPlayerScoreById(varID) "~n~Ping: " GetPlayerPingById(varID), 2000, 5)
 return
 
-;Gebt eine ID ein, um weitere Infos Ã¼ber diesen Spieler zu bekommen
+;Gebt eine ID ein, um weitere Infos über diesen Spieler zu bekommen
 Numpad2::
 SendInput tID:{Space}
 Suspend On
@@ -94,39 +93,39 @@ Hotkey, Escape, On
 Input varID, V I M,{enter}
 SendInput {end}+{home}{Del}{esc}
 ;updateScoreboardData() ;wird nun implizit aufgerufen
-showGameText(getPlayerNameById(varID) "~n~Score: " getPlayerScoreById(varID) "~n~Ping: " getPlayerPingById(varID) "~n~IsNPC: " isNPCById(varID), 2000, 5)
+ShowGameText(GetPlayerNameById(varID) "~n~Score: " GetPlayerScoreById(varID) "~n~Ping: " GetPlayerPingById(varID) "~n~IsNPC: " IsNPCById(varID), 2000, 5)
 return
 
 ;Spielt einen "Audio Stream" ab
 Numpad3::
-playAudioStream("http://breakz.us/radio/listen.pls")
+PlayAudioStream("http://breakz.us/radio/listen.pls")
 return
 
 ;Stoppt einen "Audio Stream"
 Numpad4::
-stopAudioStream()
+StopAudioStream()
 return
 
-;Zeigt diverse Infos Ã¼ber die eigene Spielerfigur an
+;Zeigt diverse Infos über die eigene Spielerfigur an
 Numpad5::
-if ( isInChat() )
+if ( IsInChat() )
 return
-addChatMessage("{FFFFFF}IP: {FF0000}" getServerIP() "{FFFFFF}, Hostname: {FF0000}" getServerName())
-addChatMessage("{FFFFFF}Name: {FF0000}" getUsername())
-addChatMessage("{FFFFFF}HP: {FF0000}" getPlayerHealth() "{FFFFFF}, ARMOR: {FF0000}" getPlayerArmor())
-pos := getCoordinates()
-addChatMessage("{FFFFFF}Zone: {FF0000}" calculateZone(pos[1],pos[2],pos[3]) "{FFFFFF}, Stadt: {FF0000}" calculateCity(pos[1],pos[2],pos[3]))
+AddChatMessage("{FFFFFF}IP: {FF0000}" GetServerIp() "{FFFFFF}, Hostname: {FF0000}" GetServerName())
+AddChatMessage("{FFFFFF}Name: {FF0000}" GetPlayerName())
+AddChatMessage("{FFFFFF}HP: {FF0000}" GetPlayerHealth() "{FFFFFF}, ARMOR: {FF0000}" GetPlayerArmor())
+pos := GetPlayerCoordinates()
+AddChatMessage("{FFFFFF}Zone: {FF0000}" CalculateZone(pos[1],pos[2],pos[3]) "{FFFFFF}, Stadt: {FF0000}" CalculateCity(pos[1],pos[2],pos[3]))
 SendChat("blub")
 SendChat("/asd")
-showGameText("test", 2000, 5)
+ShowGameText("Test", 2000, 5)
 return
 
 ;Zeigt eine Dialog-Box an
-#If !isInChat()
+#If !IsInChat()
 1::
-	showDialog(DIALOG_STYLE_LIST, "Keybinder Menü", "Funktion1`nFunktion2`nFunktion3", "Weiter", "Schließen")
+	ShowDialog(DIALOG_STYLE_LIST, "Keybinder Menü", "Funktion1`nFunktion2`nFunktion3", "Weiter", "Schließen")
 return
-#If isDialogOpen() && WinActive("GTA:SA:MP")
+#If IsDialogOpen() && WinActive("GTA:SA:MP")
 Enter::
 	OnDialogResponse(true)
 return
@@ -135,19 +134,19 @@ ESC::
 return
 #If
 OnDialogResponse(response) {
-	caption := getDialogCaption()
+	caption := GetDialogCaption()
 	if (response) {
 		if (caption == "Keybinder Menü") {
-			line := getDialogLine(getDialogIndex())
+			line := GetDialogLine__(GetDialogIndex())
 			if (line == "Funktion1") {
-				showDialog(DIALOG_STYLE_LIST, "Keybinder - Funktion1", "Test1`nTest2`nTest3", "Weiter", "Schließen")
+				ShowDialog(DIALOG_STYLE_LIST, "Keybinder - Funktion1", "Test1`nTest2`nTest3", "Weiter", "Schließen")
 			}
 			else if (line == "Funktion2") {
-				showDialog(DIALOG_STYLE_INPUT, "Keybinder - Funktion2", "Gebe einen Text ein: ", "Ok", "Schließen")
+				ShowDialog(DIALOG_STYLE_INPUT, "Keybinder - Funktion2", "Gebe einen Text ein: ", "Ok", "Schließen")
 			}
 		}
 		else if (caption == "Keybinder - Funktion1") {
-			line := getDialogLine(getDialogIndex())
+			line := GetDialogLine__(GetDialogIndex())
 			AddChatMessage(line)
 			Send, {Enter}
 		}
@@ -169,7 +168,7 @@ OnDialogResponse(response) {
 	}
 	else {
 		if (caption == "Keybinder - Funktion1") {
-			showDialog(DIALOG_STYLE_LIST, "Keybinder Menü", "Funktion1`nFunktion2`nFunktion3", "Weiter", "Schließen")
+			ShowDialog(DIALOG_STYLE_LIST, "Keybinder Menü", "Funktion1`nFunktion2`nFunktion3", "Weiter", "Schließen")
 		}
 		else
 			Send, {ESC}
@@ -180,13 +179,13 @@ OnDialogResponse(response) {
 
 ;show some info about the current vehicle
 Numpad7::
-addChatMessage("{FFFFFF}Vehicle Type:" getVehicleType())
-addChatMessage("{FFFFFF}Model:" getVehicleModelId())
-addChatMessage("{FFFFFF}Model Name:" getVehicleModelName())
-addChatMessage("{FFFFFF}Is Driver:" isPlayerDriver() " | 0 nein, 1ja")
-addChatMessage("{FFFFFF}Light State:" getVehicleLightState())
-addChatMessage("{FFFFFF}Engine State:" getVehicleEngineState())
-addChatMessage("{FFFFFF}Door State:" getVehicleLockState())
+AddChatMessage("{FFFFFF}Vehicle Type:" GetVehicleType())
+AddChatMessage("{FFFFFF}Model:" GetVehicleModelId())
+AddChatMessage("{FFFFFF}Model Name:" GetVehicleModelName())
+AddChatMessage("{FFFFFF}Is Driver:" IsPlayerDriver() " | 0 nein, 1ja")
+AddChatMessage("{FFFFFF}Light State:" GetVehicleLightState())
+AddChatMessage("{FFFFFF}Engine State:" GetVehicleEngineState())
+AddChatMessage("{FFFFFF}Door State:" GetVehicleLockState())
 return
 
 Numpad8::
