@@ -1,9 +1,9 @@
 SAMP UDF für AutoHotKey
 =======================
-Version R 15
+Version R 16
 ----------
 
-Hier geht's lang zum [Wiki](http://wiki.samp-udf.net/index.php?title=Hauptseite) und [Forum](https://samp-udf.net)
+Hier geht's lang zum <del>[Wiki](http://wiki.samp-udf.net/index.php?title=Hauptseite)</del> und [Forum](https://samp-udf.net)
 ---
 
 Deutsch
