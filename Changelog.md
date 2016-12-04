@@ -1,3 +1,14 @@
+R16
+
+Es wurden einige Namen von Funktionen geändert.
+
+Einige Funktionen werden nun am Anfang groß geschrieben und am Ende evtl. klein. Schaut dazu bitte in die AHK und überprüft eure Funktionen
+
+GetVehicleNumberPlate wurde "wieder" hinzugefügt, damit ist es möglich das Kennzeichen auszulesen.
+
+SetIP/SetServerIP wurde entfernt. Damit konnte man eine ServerIP setzen. GetServerIP bleibt drinnen.
+
+
 R15
 
 isDialogOpen() - Prüft, ob gerade ein Dialog angezeigt wird (gibt true oder false zurück)			
