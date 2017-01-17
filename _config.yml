@@ -1,0 +1,8 @@
+title: SAMP-UDF for Autohotkey
+description: "[SAMP 0.3.7]Eine Sammlung von Funktionen für die Verbindung von AutoHotKey mit San Andreas Multiplayer."
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-hacker
+
+gems:
+  - jekyll-mentions
