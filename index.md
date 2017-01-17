@@ -5,4 +5,4 @@ An open source API for GTA SA:MP licensed under the terms of the Attribution-Sha
 [http://forum.samp-udf.net](http://forum.samp-udf.net)
 
 ### Documentation
-[http://wiki.samp-udf.net](http://wiki.samp-udf.net (Momentan offline))
+[http://wiki.samp-udf.net (Momentan offline)](http://wiki.samp-udf.net)
