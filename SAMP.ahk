@@ -2213,7 +2213,7 @@ GetDialogIndex() {
 		return 0
 	}
 
-	index := readMem(hGTA, dwPointer + SAMP_DIALOG_INDEX_OFFSET, 1, "Byte")
+	index := readMem(hGTA, dwPointer + SAMP_DIALOG_INDEX_OFFSET, 4, "int")
 	if (ErrorLevel) {
 		ErrorLevel := ERROR_READ_MEMORY
 		return 0
