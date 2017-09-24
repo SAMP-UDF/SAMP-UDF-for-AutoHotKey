@@ -68,6 +68,7 @@ global FUNC_SAMP_SENDCMD                    := 0x65d30
 global FUNC_SAMP_SENDSAY                    := 0x57e0
 global FUNC_SAMP_ADDTOCHATWND               := 0x645f0
 global ADDR_SAMP_CHATMSG_PTR                := 0x21a0ec
+global FUNC_SAMP_SHOWGAMETEXT               := 0x9c370
 global FUNC_SAMP_PLAYAUDIOSTR               := 0x62e70
 global FUNC_SAMP_STOPAUDIOSTR               := 0x62a70
 
@@ -95,7 +96,7 @@ global SAMP_DIALOG_STYLE_OFFSET             := 0x2C
 global SAMP_DIALOG_ID_OFFSET                := 0x30
 global SAMP_DIALOG_TEXT_PTR_OFFSET          := 0x34
 global SAMP_DIALOG_CAPTION_OFFSET           := 0x40
-global FUNC_SAMP_SHOWDIALOG                 := 0xfb9c0000
+global FUNC_SAMP_SHOWDIALOG                 := 0x6BA70
 global FUNC_SAMP_CLOSEDIALOG                := 0x6C040
 
 
