@@ -1,5 +1,5 @@
-; #### SAMP UDF R16 ####
-; SAMP Version: 0.3.7
+; #### SAMP UDF R17 ####
+; SAMP Version: 0.3.7 R2
 ; Written by Chuck_Floyd 
 ; https://github.com/FrozenBrain
 ; Modified by Suchty112
