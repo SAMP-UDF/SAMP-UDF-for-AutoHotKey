@@ -68,16 +68,18 @@ global ADDR_SAMP_INCHAT_PTR                 := [0x21A10C, 0x21A114, 0x2ACA3C]
 global ADDR_SAMP_INCHAT_PTR_OFF             := [0x55, 0x60, 0x60]
 global ADDR_SAMP_USERNAME                   := [0x219A6F, 0x219A77, 0x2AC187]
 
-global ADDR_SAMP_SERVERNAME                 := [0x121, 0x11D]
+global ADDR_SAMP_SERVERNAME                 := [0x121, 0x11D, 0x131]
 global ADDR_SAMP_SERVERIP                   := [0x20, 0x1C, 0x30]
 global ADDR_SAMP_SERVERPORT                 := [0x225, 0x221, 0x235]
 global ADDR_SAMP_VEHPOOL                    := [0x1C, 0xC, 0xC]
 
+global SAMP_SCOREBOARD_INFO_PTR 	    := [0x21A0B4, 0x21A0BC, 0x2AC9DC]
+
 global SAMP_REMOTEPLAYERDATA_OFFSET         := [0x0, 0xC, 0x8]
 global SAMP_REMOTEPLAYERDATA_ACTOR          := [0x0, 0x1C, 0x4]
 global SAMP_REMOTEPLAYERDATA_PED            := [0x25C, 0x40, 0x40]
-global SAMP_REMOTEPLAYERDATA_HEALTH			:= [0x1BC, 0x1BC, 0x1B0]
-global SAMP_REMOTEPLAYERDATA_ARMOR			:= [0x1B8, 0x1AC, 0x1AC]
+global SAMP_REMOTEPLAYERDATA_HEALTH	    := [0x1BC, 0x1BC, 0x1B0]
+global SAMP_REMOTEPLAYERDATA_ARMOR          := [0x1B8, 0x1AC, 0x1AC]
 global SAMP_REMOTEPLAYERDATA_GLOBALPOS      := [0x2A4, 0x17C, 0x120]
 global SAMP_REMOTEPLAYERDATA_POS            := [0x2A4, 0x2A, 0x42]
 global FUNC_SAMP_SETCHECKPOINT              := [0x9D340, 0x9D3F0, 0xA1C00]
@@ -1547,7 +1549,7 @@ CountOnlinePlayers() {
     if(!checkHandles())
         return -1
     
-    dwOnline := readDWORD(hGTA, dwSAMP + (sampVersion == 1 ? 0x21A0B4 : 0x21A0BC))
+    dwOnline := readDWORD(hGTA, dwSAMP + SAMP_SCOREBOARD_INFO_PTR[sampVersion])
     
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
