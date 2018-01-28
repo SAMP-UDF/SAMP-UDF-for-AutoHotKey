@@ -1,5 +1,5 @@
-; #### SAMP UDF R16 ####
-; SAMP Version: 0.3.7
+; #### SAMP UDF R18 ####
+; SAMP Version: 0.3.7, 0.3.7-R2, 0.3.DL
 ; Written by Chuck_Floyd 
 ; https://github.com/FrozenBrain
 ; Modified by Suchty112
@@ -11,6 +11,8 @@
 ; Modified by: RawDev and ELon
 ; Refactoring by: Peek
 ; https://github.com/pkfln
+; Multifunctional by: Coderunner
+; https://samp-udf.net/index.php?user/4-coderunner/
 ; Do not remove these lines.
 ; ####################
 
@@ -61,17 +63,35 @@ global oradiostationNames := ["Playback FM", "K Rose", "K-DST", "Bounce FM", "SF
 global oweatherNames := ["EXTRASUNNY_LA", "SUNNY_LA", "EXTRASUNNY_SMOG_LA", "SUNNY_SMOG_LA", "CLOUDY_LA", "SUNNY_SF", "EXTRASUNNY_SF", "CLOUDY_SF", "RAINY_SF", "FOGGY_SF", "SUNNY_VEGAS", "EXTRASUNNY_VEGAS", "CLOUDY_VEGAS", "EXTRASUNNY_COUNTRYSIDE", "SUNNY_COUNTRYSIDE", "CLOUDY_COUNTRYSIDE", "RAINY_COUNTRYSIDE", "EXTRASUNNY_DESERT", "SUNNY_DESERT", "SANDSTORM_DESERT", "UNDERWATER", "EXTRACOLOURS_1", "EXTRACOLOURS_2"]
 
 ; ########################## SAMP addresses ##########################
-global ADDR_SAMP_INCHAT_PTR                 := 0x21a10c
-global ADDR_SAMP_INCHAT_PTR_OFF             := 0x55
-global ADDR_SAMP_USERNAME                   := 0x219A6F
-global FUNC_SAMP_SENDCMD                    := 0x65c60
-global FUNC_SAMP_SENDSAY                    := 0x57f0
-global FUNC_SAMP_ADDTOCHATWND               := 0x64520
-global ADDR_SAMP_CHATMSG_PTR                := 0x21a0e4
-global FUNC_SAMP_SHOWGAMETEXT               := 0x9c2c0
-global FUNC_SAMP_PLAYAUDIOSTR               := 0x62da0
-global FUNC_SAMP_STOPAUDIOSTR               := 0x629a0
 
+global ADDR_SAMP_INCHAT_PTR                 := [0x21A10C, 0x21A114, 0x2ACA3C]
+global ADDR_SAMP_INCHAT_PTR_OFF             := [0x55, 0x60, 0x60]
+global ADDR_SAMP_USERNAME                   := [0x219A6F, 0x219A77, 0x2AC187]
+
+global ADDR_SAMP_SERVERNAME                 := [0x121, 0x11D, 0x131]
+global ADDR_SAMP_SERVERIP                   := [0x20, 0x1C, 0x30]
+global ADDR_SAMP_SERVERPORT                 := [0x225, 0x221, 0x235]
+global ADDR_SAMP_VEHPOOL                    := [0x1C, 0xC, 0xC]
+
+global SAMP_SCOREBOARD_INFO_PTR 	    := [0x21A0B4, 0x21A0BC, 0x2AC9DC]
+
+global SAMP_REMOTEPLAYERDATA_OFFSET         := [0x0, 0xC, 0x8]
+global SAMP_REMOTEPLAYERDATA_ACTOR          := [0x0, 0x1C, 0x4]
+global SAMP_REMOTEPLAYERDATA_PED            := [0x25C, 0x40, 0x40]
+global SAMP_REMOTEPLAYERDATA_HEALTH	    := [0x1BC, 0x1BC, 0x1B0]
+global SAMP_REMOTEPLAYERDATA_ARMOR          := [0x1B8, 0x1AC, 0x1AC]
+global SAMP_REMOTEPLAYERDATA_GLOBALPOS      := [0x2A4, 0x17C, 0x120]
+global SAMP_REMOTEPLAYERDATA_POS            := [0x2A4, 0x2A, 0x42]
+global FUNC_SAMP_SETCHECKPOINT              := [0x9D340, 0x9D3F0, 0xA1C00]
+global SAMP_CHECKPOINT_ACTIVE               := [0x24, 0x4D, 0x4D]
+
+global FUNC_SAMP_SENDCMD                    := [0x65C60, 0x65D30, 0x69340]
+global FUNC_SAMP_SENDSAY                    := [0x57F0, 0x57E0, 0x5860]
+global FUNC_SAMP_ADDTOCHATWND               := [0x64520, 0x645F0, 0x67B60]
+global ADDR_SAMP_CHATMSG_PTR                := [0x21A0E4, 0x21A0EC, 0x2ACA10]
+global FUNC_SAMP_SHOWGAMETEXT               := [0x9C2C0, 0x9C370, 0xA0B20]
+global FUNC_SAMP_PLAYAUDIOSTR               := [0x62DA0, 0x62E70, 0x663E0]
+global FUNC_SAMP_STOPAUDIOSTR               := [0x629A0, 0x62A70, 0x65FE0]
 
 ; ########################## Dialog styles ##########################
 global DIALOG_STYLE_MSGBOX                  := 0
@@ -83,7 +103,7 @@ global DIALOG_STYLE_TABLIST_HEADERS         := 5
 
 
 ; ######################### Dialog structure #########################
-global SAMP_DIALOG_STRUCT_PTR               := 0x21A0B8
+global SAMP_DIALOG_STRUCT_PTR               := [0x21A0B8, 0x21A0C0, 0x2AC9E0]
 global SAMP_DIALOG_PTR1_OFFSET              := 0x1C
 global SAMP_DIALOG_LINES_OFFSET             := 0x44C
 global SAMP_DIALOG_INDEX_OFFSET             := 0x443
@@ -96,29 +116,33 @@ global SAMP_DIALOG_STYLE_OFFSET             := 0x2C
 global SAMP_DIALOG_ID_OFFSET                := 0x30
 global SAMP_DIALOG_TEXT_PTR_OFFSET          := 0x34
 global SAMP_DIALOG_CAPTION_OFFSET           := 0x40
-global FUNC_SAMP_SHOWDIALOG                 := 0x6B9C0
-global FUNC_SAMP_CLOSEDIALOG                := 0x6C040
+global FUNC_SAMP_SHOWDIALOG                 := [0x6B9C0, 0x6BA70, 0x6FA50]
+global FUNC_SAMP_CLOSEDIALOG                := [0x6C040, 0x6B2C0, 0x6F2A0]
 
 
 ; ######################### Scoreboard #########################
-global FUNC_UPDATESCOREBOARD                := 0x8A10
-global SAMP_INFO_OFFSET                     := 0x21A0F8
-global ADDR_SAMP_CRASHREPORT                := 0x5CF2C
-global SAMP_PPOOLS_OFFSET                   := 0x3CD
-global SAMP_PPOOL_PLAYER_OFFSET             := 0x18
-global SAMP_SLOCALPLAYERID_OFFSET           := 0x4
-global SAMP_ISTRLEN_LOCALPLAYERNAME_OFFSET  := 0x1A
-global SAMP_SZLOCALPLAYERNAME_OFFSET        := 0xA
-global SAMP_PSZLOCALPLAYERNAME_OFFSET       := 0xA
-global SAMP_PREMOTEPLAYER_OFFSET            := 0x2E
-global SAMP_ISTRLENNAME___OFFSET            := 0x1C
-global SAMP_SZPLAYERNAME_OFFSET             := 0xC
-global SAMP_PSZPLAYERNAME_OFFSET            := 0xC
-global SAMP_ILOCALPLAYERPING_OFFSET         := 0x26
-global SAMP_ILOCALPLAYERSCORE_OFFSET        := 0x2A
-global SAMP_IPING_OFFSET                    := 0x28
-global SAMP_ISCORE_OFFSET                   := 0x24
-global SAMP_ISNPC_OFFSET                    := 0x4
+
+global FUNC_UPDATESCOREBOARD                := [0x8A10, 0x8A20, 0x8C00]
+global SAMP_INFO_OFFSET                     := [0x21A0F8, 0x21A100, 0x2ACA24]
+global ADDR_SAMP_CRASHREPORT                := [0x5CF2C, 0x5D00C, 0x604CC]
+global SAMP_PPOOLS_OFFSET                   := [0x3CD, 0x3C5, 0x3DE]
+global SAMP_PPOOL_PLAYER_OFFSET             := [0x18, 0x8, 0x8]
+
+global SAMP_SLOCALPLAYERID_OFFSET           := [0x4, 0x0, 0x0]
+global SAMP_ISTRLEN_LOCALPLAYERNAME_OFFSET  := [0x1A, 0x16, 0x16]
+global SAMP_SZLOCALPLAYERNAME_OFFSET        := [0xA, 0x6, 0x6]
+global SAMP_PSZLOCALPLAYERNAME_OFFSET       := [0xA, 0x6, 0x6]
+global SAMP_ILOCALPLAYERPING_OFFSET         := [0x26, 0x2F36, 0x2F36]
+global SAMP_ILOCALPLAYERSCORE_OFFSET        := [0x2A, 0x2F3A, 0x2F3A]
+
+global SAMP_PREMOTEPLAYER_OFFSET            := [0x2E, 0x26, 0x26]
+global SAMP_ISTRLENNAME___OFFSET            := [0x1C, 0x24, 0x24]
+global SAMP_SZPLAYERNAME_OFFSET             := [0xC, 0x14, 0x14]
+global SAMP_PSZPLAYERNAME_OFFSET            := [0xC, 0x14, 0x14]
+global SAMP_IPING_OFFSET                    := [0x28, 0x4, 0xC]
+global SAMP_ISCORE_OFFSET                   := [0x24, 0x0, 0x0]
+global SAMP_ISNPC_OFFSET                    := [0x4, 0x8, 0x4]
+
 global SAMP_PLAYER_MAX                      := 1004
 
 
@@ -132,6 +156,7 @@ global SIZE_SAMP_CHATMSG                    := 0xFC
 
 
 ; ######################### Internal #########################
+global sampVersion							:= 0
 global hGTA                                 := 0x0
 global dwGTAPID                             := 0x0
 global dwSAMP                               := 0x0
@@ -149,6 +174,7 @@ global iRefreshScoreboard                   := 0
 global oScoreboardData                      := ""
 global iRefreshHandles                      := 0
 global iUpdateTick                          := 2500 ;time in ms, used for GetPlayerNameById etc. to refresh data
+
 
 ; ###############################################################################################################################
 ; # SAMP-Funktionen:                                                                                                            #
@@ -356,12 +382,14 @@ global iUpdateTick                          := 2500 ;time in ms, used for GetPla
 ; #                                                                                                                             #
 ; ###############################################################################################################################
 
+
 ; ##### SAMP-Funktionen #####
+
 IsSAMPAvailable() {
     if(!checkHandles())
         return false
 	
-	dwChatInfo := readDWORD(hGTA, dwSAMP + ADDR_SAMP_CHATMSG_PTR)
+	dwChatInfo := readDWORD(hGTA, dwSAMP + ADDR_SAMP_CHATMSG_PTR[sampVersion])
 	
 	if(dwChatInfo == 0 || dwChatInfo == "ERROR")
 	{
@@ -377,8 +405,8 @@ IsInChat() {
     if(!checkHandles())
         return -1
     
-    dwPtr := dwSAMP + ADDR_SAMP_INCHAT_PTR
-    dwAddress := readDWORD(hGTA, dwPtr) + ADDR_SAMP_INCHAT_PTR_OFF
+    dwPtr := dwSAMP + ADDR_SAMP_INCHAT_PTR[sampVersion]
+    dwAddress := readDWORD(hGTA, dwPtr) + ADDR_SAMP_INCHAT_PTR_OFF[sampVersion]
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return -1
@@ -402,7 +430,7 @@ GetPlayerName() {
     if(!checkHandles())
         return ""
     
-    dwAddress := dwSAMP + ADDR_SAMP_USERNAME
+    dwAddress := dwSAMP + ADDR_SAMP_USERNAME[sampVersion]
     sUsername := readString(hGTA, dwAddress, 25)
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
@@ -418,7 +446,6 @@ GetPlayerId() {
     return GetPlayerIdByName(s)
 }
 
-
 SendChat(wText) {
      wText := "" wText
     
@@ -427,9 +454,9 @@ SendChat(wText) {
     
     dwFunc:=0
     if(SubStr(wText, 1, 1) == "/") {
-        dwFunc := dwSAMP + FUNC_SAMP_SENDCMD
+        dwFunc := dwSAMP + FUNC_SAMP_SENDCMD[sampVersion]
     } else {
-        dwFunc := dwSAMP + FUNC_SAMP_SENDSAY
+        dwFunc := dwSAMP + FUNC_SAMP_SENDSAY[sampVersion]
     }
     
     callWithParams(hGTA, dwFunc, [["s", wText]], false)
@@ -444,8 +471,8 @@ AddChatMessage(wText) {
     if(!checkHandles())
         return false
     
-    dwFunc := dwSAMP + FUNC_SAMP_ADDTOCHATWND
-    dwChatInfo := readDWORD(hGTA, dwSAMP + ADDR_SAMP_CHATMSG_PTR)
+    dwFunc := dwSAMP + FUNC_SAMP_ADDTOCHATWND[sampVersion]
+    dwChatInfo := readDWORD(hGTA, dwSAMP + ADDR_SAMP_CHATMSG_PTR[sampVersion])
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return false
@@ -467,7 +494,7 @@ ShowGameText(wText, dwTime, dwTextstyle) {
     if(!checkHandles())
         return false
     
-    dwFunc := dwSAMP + FUNC_SAMP_SHOWGAMETEXT
+    dwFunc := dwSAMP + FUNC_SAMP_SHOWGAMETEXT[sampVersion]
     
     callWithParams(hGTA, dwFunc, [["s", wText], ["i", dwTime], ["i", dwTextstyle]], false)
     
@@ -481,7 +508,7 @@ PlayAudioStream(wUrl) {
     if(!checkHandles())
         return false
     
-    dwFunc := dwSAMP + FUNC_SAMP_PLAYAUDIOSTR
+    dwFunc := dwSAMP + FUNC_SAMP_PLAYAUDIOSTR[sampVersion]
     
     PatchRadio()
     
@@ -497,7 +524,7 @@ StopAudioStream() {
     if(!checkHandles())
         return false
     
-    dwFunc := dwSAMP + FUNC_SAMP_STOPAUDIOSTR
+    dwFunc := dwSAMP + FUNC_SAMP_STOPAUDIOSTR[sampVersion]
     
     PatchRadio()
     
@@ -516,11 +543,11 @@ PatchRadio() {
     VarSetCapacity(nop, 4, 0)
     NumPut(0x90909090,nop,0,"UInt")
     
-    dwFunc := dwSAMP + FUNC_SAMP_PLAYAUDIOSTR
+    dwFunc := dwSAMP + FUNC_SAMP_PLAYAUDIOSTR[sampVersion]
     writeRaw(hGTA, dwFunc, &nop, 4)
     writeRaw(hGTA, dwFunc+4, &nop, 1)
     
-    dwFunc := dwSAMP + FUNC_SAMP_STOPAUDIOSTR
+    dwFunc := dwSAMP + FUNC_SAMP_STOPAUDIOSTR[sampVersion]
     writeRaw(hGTA, dwFunc, &nop, 4)
     writeRaw(hGTA, dwFunc+4, &nop, 1)
     return true
@@ -532,13 +559,13 @@ UnPatchRadio() {
     
     VarSetCapacity(old, 4, 0)
     
-    dwFunc := dwSAMP + FUNC_SAMP_PLAYAUDIOSTR
+    dwFunc := dwSAMP + FUNC_SAMP_PLAYAUDIOSTR[sampVersion]
     NumPut(0x74003980,old,0,"UInt")
     writeRaw(hGTA, dwFunc, &old, 4)
     NumPut(0x39,old,0,"UChar")
     writeRaw(hGTA, dwFunc+4, &old, 1)
     
-    dwFunc := dwSAMP + FUNC_SAMP_STOPAUDIOSTR
+    dwFunc := dwSAMP + FUNC_SAMP_STOPAUDIOSTR[sampVersion]
     NumPut(0x74003980,old,0,"UInt")
     writeRaw(hGTA, dwFunc, &old, 4)
     NumPut(0x09,old,0,"UChar")
@@ -552,11 +579,11 @@ BlockChatInput() {
     
     VarSetCapacity(nop, 2, 0)
     
-    dwFunc := dwSAMP + FUNC_SAMP_SENDSAY
+    dwFunc := dwSAMP + FUNC_SAMP_SENDSAY[sampVersion]
     NumPut(0x04C2,nop,0,"Short")
     writeRaw(hGTA, dwFunc, &nop, 2)
     
-    dwFunc := dwSAMP + FUNC_SAMP_SENDCMD
+    dwFunc := dwSAMP + FUNC_SAMP_SENDCMD[sampVersion]
     writeRaw(hGTA, dwFunc, &nop, 2)
     
     return true
@@ -568,11 +595,11 @@ UnBlockChatInput() {
     
     VarSetCapacity(nop, 2, 0)
     
-    dwFunc := dwSAMP + FUNC_SAMP_SENDSAY
+    dwFunc := dwSAMP + FUNC_SAMP_SENDSAY[sampVersion]
     NumPut(0xA164,nop,0,"Short")
     writeRaw(hGTA, dwFunc, &nop, 2)
     
-    dwFunc := dwSAMP + FUNC_SAMP_SENDCMD
+    dwFunc := dwSAMP + FUNC_SAMP_SENDCMD[sampVersion]
     writeRaw(hGTA, dwFunc, &nop, 2)
     
     return true
@@ -582,7 +609,7 @@ GetServerName() {
     if(!checkHandles())
         return -1
     
-    dwAdress := readMem(hGTA, dwSAMP + 0x21A0F8, 4, "int")
+    dwAdress := readMem(hGTA, dwSAMP + SAMP_INFO_OFFSET[sampVersion], 4, "int")
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return -1
@@ -591,7 +618,7 @@ GetServerName() {
     if(!dwAdress)
         return -1
     
-    ServerName := readString(hGTA, dwAdress + 0x121, 200)
+    ServerName := readString(hGTA, dwAdress + ADDR_SAMP_SERVERNAME[sampVersion], 200)
     
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
@@ -606,7 +633,7 @@ GetServerIp() {
     if(!checkHandles())
         return -1
     
-    dwAdress := readMem(hGTA, dwSAMP + 0x21A0F8, 4, "int")
+    dwAdress := readMem(hGTA, dwSAMP + SAMP_INFO_OFFSET[sampVersion], 4, "int")
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return -1
@@ -615,7 +642,7 @@ GetServerIp() {
     if(!dwAdress)
         return -1
     
-    ServerIP := readString(hGTA, dwAdress + 0x20, 100)
+    ServerIP := readString(hGTA, dwAdress + ADDR_SAMP_SERVERIP[sampVersion], 100)
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return -1
@@ -629,7 +656,7 @@ GetServerPort() {
     if(!checkHandles())
         return -1
     
-    dwAdress := readMem(hGTA, dwSAMP + 0x21A0F8, 4, "int")
+    dwAdress := readMem(hGTA, dwSAMP + SAMP_INFO_OFFSET[sampVersion], 4, "int")
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return -1
@@ -638,7 +665,7 @@ GetServerPort() {
     if(!dwAdress)
         return -1
     
-    ServerPort := readMem(hGTA, dwAdress + 0x225, 4, "int")
+    ServerPort := readMem(hGTA, dwAdress + ADDR_SAMP_SERVERPORT[sampVersion], 4, "int")
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return -1
@@ -651,9 +678,8 @@ GetServerPort() {
 GetWeatherId() {
     if(!checkHandles())
         return -1
-    
-    dwGTA := getModuleBaseAddress("gta_sa.exe", hGTA)
-    WeatherID := readMem(hGTA, dwGTA + 0xC81320, 2, "byte")
+
+    WeatherID := readMem(hGTA, 0xC81320, 2, "byte")
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return -1
@@ -664,9 +690,7 @@ GetWeatherId() {
 }
 
 GetWeatherName() {
-    if(IsPlayerInAnyVehicle() == 0)
-        return -1
-    
+	id := getWeatherID()  
     if(id >= 0 && id < 23)
     {
         return oweatherNames[id-1]
@@ -674,7 +698,6 @@ GetWeatherName() {
     return ""
 }
 
-; ##### Spielerfunktionen #####
 GetPlayerHealth() {
     if(!checkHandles())
         return -1
@@ -889,8 +912,7 @@ IsPlayerFreezed() {
     if(!checkHandles())
         return -1
     
-    dwGTA := getModuleBaseAddress("gta_sa.exe", hGTA)
-    IPF := readMem(hGTA, dwGTA + 0x690495, 2, "byte")    
+    IPF := readMem(hGTA, 0x690495, 2, "byte")    
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return -1
@@ -900,7 +922,6 @@ IsPlayerFreezed() {
     return IPF
 }
 
-; ##### Fahrzeugfunktionen #####
 IsPlayerInAnyVehicle()
 {
     if(!checkHandles())
@@ -1190,8 +1211,7 @@ GetPlayerRadiostationId() {
     if(IsPlayerInAnyVehicle() == 0)
         return -1
     
-    dwGTA := getModuleBaseAddress("gta_sa.exe", hGTA)
-    RadioStationID := readMem(hGTA, dwGTA + 0x4CB7E1, 1, "byte")
+    RadioStationID := readMem(hGTA, 0x4CB7E1, 1, "byte")
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return -1
@@ -1226,19 +1246,19 @@ GetVehicleNumberPlate() {
         return ""
     }
     
-    dwAddress := readDWORD(hGTA, dwSAMP + SAMP_INFO_OFFSET)
+    dwAddress := readDWORD(hGTA, dwSAMP + SAMP_INFO_OFFSET[sampVersion])
     if(ErrorLevel || dwAddress==0) {
         ErrorLevel := ERROR_READ_MEMORY
         return ""
     }
     
-    dwAddress := readDWORD(hGTA, dwAddress + SAMP_PPOOLS_OFFSET)
+    dwAddress := readDWORD(hGTA, dwAddress + SAMP_PPOOLS_OFFSET[sampVersion])
     if(ErrorLevel || dwAddress==0) {
         ErrorLevel := ERROR_READ_MEMORY
         return ""
     }
     
-    vehpool := readDWORD(hGTA, dwAddress + 0x1C)
+    vehpool := readDWORD(hGTA, dwAddress + ADDR_SAMP_VEHPOOL[sampVersion])
     if(ErrorLevel || vehpool==0) {
         ErrorLevel := ERROR_READ_MEMORY
         return ""
@@ -1284,6 +1304,7 @@ GetVehicleNumberPlate() {
     ErrorLevel := ERROR_OK
     return ""
 }
+
 ; ##### Extra-Player-Funktionen #####
 
 GetTargetPed() {
@@ -1528,7 +1549,7 @@ CountOnlinePlayers() {
     if(!checkHandles())
         return -1
     
-    dwOnline := readDWORD(hGTA, dwSAMP + 0x21A0B4)
+    dwOnline := readDWORD(hGTA, dwSAMP + SAMP_SCOREBOARD_INFO_PTR[sampVersion])
     
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
@@ -1633,11 +1654,8 @@ GetTargetPlayerSkinIdByPed(dwPED) {
 GetTargetPlayerSkinIdById(dwId) {
     if(!checkHandles())
         return -1
-    
-    dwPED := GetPedById(dwId)
-    dwAddr := dwPED + ADDR_CPED_SKINIDOFF
-    
-    SkinID := readMem(hGTA, dwAddr, 2, "byte")
+ 
+    SkinID := readMem(hGTA, GetPedById(dwId) + ADDR_CPED_SKINIDOFF, 2, "UShort")
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return -1
@@ -1647,7 +1665,7 @@ GetTargetPlayerSkinIdById(dwId) {
     return SkinID
 }
 
-; ##### Extra-Player-Fahrzeug-Funktionenn #####
+; ##### Extra-Player-Fahrzeug-Funktionen #####
 GetVehiclePointerByPed(dwPED) {
     dwPED += 0
     dwPED := Floor(dwPED)
@@ -2084,6 +2102,7 @@ GetTargetVehicleSpeedById(dwId) {
 	return fVehicleSpeed
 }
 
+
 ; ##### Sonstiges #####
 ; written by David_Luchs %
 ; returns nth message of chatlog (beggining from bottom)
@@ -2125,6 +2144,7 @@ AntiCrash() {
     writeMemory(hGTA, dwSAMP + cReport, 0x90, 1)
 }
 
+
 ; ######################### Dialog Functions #########################
 GetDialogStructPtr() {
 	if (!checkHandles()) {
@@ -2132,7 +2152,7 @@ GetDialogStructPtr() {
 		return false
 	}
 
-	dwPointer := readDWORD(hGTA, dwSAMP + SAMP_DIALOG_STRUCT_PTR)
+	dwPointer := readDWORD(hGTA, dwSAMP + SAMP_DIALOG_STRUCT_PTR[sampVersion])
 	if (ErrorLevel) {
 		ErrorLevel := ERROR_READ_MEMORY
 		return false
@@ -2408,9 +2428,9 @@ ShowDialog(style, caption, text, button1, button2 := "", id := 1) {
 	if (!checkHandles())
 		return false
 
-	dwFunc := dwSAMP + FUNC_SAMP_SHOWDIALOG
+	dwFunc := dwSAMP + FUNC_SAMP_SHOWDIALOG[sampVersion]
 
-	dwAddress := readDWORD(hGTA, dwSAMP + SAMP_DIALOG_STRUCT_PTR)
+	dwAddress := readDWORD(hGTA, dwSAMP + SAMP_DIALOG_STRUCT_PTR[sampVersion])
 	if (ErrorLevel || !dwAddress) {
 		ErrorLevel := ERROR_READ_MEMORY
 		return false
@@ -2468,6 +2488,7 @@ ShowDialog(style, caption, text, button1, button2 := "", id := 1) {
 
 	return true
 }
+
 ; ##### Scoreboard-Funktionen #####
 
 GetPlayerNameById(dwId) {
@@ -2585,13 +2606,13 @@ UpdateScoreboardDataEx() {
     if(!checkHandles())
         return false
     
-    dwAddress := readDWORD(hGTA, dwSAMP + SAMP_INFO_OFFSET)            ;g_SAMP
+    dwAddress := readDWORD(hGTA, dwSAMP + SAMP_INFO_OFFSET[sampVersion])            ;g_SAMP
     if(ErrorLevel || dwAddress==0) {
         ErrorLevel := ERROR_READ_MEMORY
         return false
     }
     
-    dwFunc := dwSAMP + FUNC_UPDATESCOREBOARD
+    dwFunc := dwSAMP + FUNC_UPDATESCOREBOARD[sampVersion]
     
     VarSetCapacity(injectData, 11, 0) ;mov + call + retn
     
@@ -2628,46 +2649,46 @@ UpdateOScoreboardData() {
     
     if(!UpdateScoreboardDataEx())
         return 0
-    
+
     iRefreshScoreboard := A_TickCount
     
-    dwAddress := readDWORD(hGTA, dwSAMP + SAMP_INFO_OFFSET)
+    dwAddress := readDWORD(hGTA, dwSAMP + SAMP_INFO_OFFSET[sampVersion])
     if(ErrorLevel || dwAddress==0) {
         ErrorLevel := ERROR_READ_MEMORY
         return 0
     }
     
-    dwAddress := readDWORD(hGTA, dwAddress + SAMP_PPOOLS_OFFSET)
+    dwAddress := readDWORD(hGTA, dwAddress + SAMP_PPOOLS_OFFSET[sampVersion])
     if(ErrorLevel || dwAddress==0) {
         ErrorLevel := ERROR_READ_MEMORY
         return 0
     }
     
-    dwPlayers := readDWORD(hGTA, dwAddress + SAMP_PPOOL_PLAYER_OFFSET)
+    dwPlayers := readDWORD(hGTA, dwAddress + SAMP_PPOOL_PLAYER_OFFSET[sampVersion])
     if(ErrorLevel || dwPlayers==0) {
         ErrorLevel := ERROR_READ_MEMORY
         return 0
     }
     
-    wID := readMem(hGTA, dwPlayers + SAMP_SLOCALPLAYERID_OFFSET, 2, "Short")    ;sLocalPlayerID
+    wID := readMem(hGTA, dwPlayers + SAMP_SLOCALPLAYERID_OFFSET[sampVersion], 2, "Short")    ;sLocalPlayerID
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return 0
     }
     
-    dwPing := readMem(hGTA, dwPlayers + SAMP_ILOCALPLAYERPING_OFFSET, 4, "Int")
+    dwPing := readMem(hGTA, dwPlayers + SAMP_ILOCALPLAYERPING_OFFSET[sampVersion], 4, "Int")
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return 0
     }
     
-    dwScore := readMem(hGTA, dwPlayers + SAMP_ILOCALPLAYERSCORE_OFFSET, 4, "Int")
+    dwScore := readMem(hGTA, dwPlayers + SAMP_ILOCALPLAYERSCORE_OFFSET[sampVersion], 4, "Int")
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return 0
     }
     
-    dwTemp := readMem(hGTA, dwPlayers + SAMP_ISTRLEN_LOCALPLAYERNAME_OFFSET, 4, "Int")    ;iStrlen_LocalPlayerName
+    dwTemp := readMem(hGTA, dwPlayers + SAMP_ISTRLEN_LOCALPLAYERNAME_OFFSET[sampVersion], 4, "Int")    ;iStrlen_LocalPlayerName
     if(ErrorLevel) {
         ErrorLevel := ERROR_READ_MEMORY
         return 0
@@ -2675,14 +2696,14 @@ UpdateOScoreboardData() {
     
     sUsername := ""
     if(dwTemp <= 0xf) {
-        sUsername := readString(hGTA, dwPlayers + SAMP_SZLOCALPLAYERNAME_OFFSET, 16)       ;szLocalPlayerName
+        sUsername := readString(hGTA, dwPlayers + SAMP_SZLOCALPLAYERNAME_OFFSET[sampVersion], 16)       ;szLocalPlayerName
         if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
         }
     }
     else {
-        dwAddress := readDWORD(hGTA, dwPlayers + SAMP_PSZLOCALPLAYERNAME_OFFSET)        ;pszLocalPlayerName
+        dwAddress := readDWORD(hGTA, dwPlayers + SAMP_PSZLOCALPLAYERNAME_OFFSET[sampVersion])        ;pszLocalPlayerName
         if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
@@ -2693,13 +2714,14 @@ UpdateOScoreboardData() {
             return 0
         }
     }
+
     oScoreboardData[wID] := Object("NAME", sUsername, "ID", wID, "PING", dwPing, "SCORE", dwScore, "ISNPC", 0)
     
     Loop, % SAMP_PLAYER_MAX
     {
         i := A_Index-1
         
-        dwRemoteplayer := readDWORD(hGTA, dwPlayers+SAMP_PREMOTEPLAYER_OFFSET+i*4)      ;pRemotePlayer
+        dwRemoteplayer := readDWORD(hGTA, dwPlayers+SAMP_PREMOTEPLAYER_OFFSET[sampVersion]+i*4)      ;pRemotePlayer
         if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
@@ -2708,25 +2730,25 @@ UpdateOScoreboardData() {
         if(dwRemoteplayer==0)
             continue
         
-        dwPing := readMem(hGTA, dwRemoteplayer + SAMP_IPING_OFFSET, 4, "Int")
+        dwPing := readMem(hGTA, dwRemoteplayer + SAMP_IPING_OFFSET[sampVersion], 4, "Int")
         if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
         }
         
-        dwScore := readMem(hGTA, dwRemoteplayer + SAMP_ISCORE_OFFSET, 4, "Int")
+        dwScore := readMem(hGTA, dwRemoteplayer + SAMP_ISCORE_OFFSET[sampVersion], 4, "Int")
         if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
         }
         
-        dwIsNPC := readMem(hGTA, dwRemoteplayer + SAMP_ISNPC_OFFSET, 4, "Int")
+        dwIsNPC := readMem(hGTA, dwRemoteplayer + SAMP_ISNPC_OFFSET[sampVersion], 4, "Int")
         if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
         }
         
-        dwTemp := readMem(hGTA, dwRemoteplayer + SAMP_ISTRLENNAME___OFFSET, 4, "Int")
+        dwTemp := readMem(hGTA, dwRemoteplayer + SAMP_ISTRLENNAME___OFFSET[sampVersion], 4, "Int")
         if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
@@ -2734,14 +2756,14 @@ UpdateOScoreboardData() {
         sUsername := ""
         if(dwTemp <= 0xf)
         {
-            sUsername := readString(hGTA, dwRemoteplayer+SAMP_SZPLAYERNAME_OFFSET, 16)
+            sUsername := readString(hGTA, dwRemoteplayer+SAMP_SZPLAYERNAME_OFFSET[sampVersion], 16)
             if(ErrorLevel) {
                 ErrorLevel := ERROR_READ_MEMORY
                 return 0
             }
         }
         else {
-            dwAddress := readDWORD(hGTA, dwRemoteplayer + SAMP_PSZPLAYERNAME_OFFSET)
+            dwAddress := readDWORD(hGTA, dwRemoteplayer + SAMP_PSZPLAYERNAME_OFFSET[sampVersion])
             if(ErrorLevel || dwAddress==0) {
                 ErrorLevel := ERROR_READ_MEMORY
                 return 0
@@ -2754,8 +2776,8 @@ UpdateOScoreboardData() {
         }
         o := Object("NAME", sUsername, "ID", i, "PING", dwPing, "SCORE", dwScore, "ISNPC", dwIsNPC)
         oScoreboardData[i] := o
-        
-        dwRemoteplayerData := readDWORD(hGTA, dwRemoteplayer + 0x0)                ;pPlayerData
+
+        dwRemoteplayerData := readDWORD(hGTA, dwRemoteplayer + SAMP_REMOTEPLAYERDATA_OFFSET[sampVersion])                ;pPlayerData
         if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
@@ -2763,24 +2785,24 @@ UpdateOScoreboardData() {
         if(dwRemoteplayerData==0)		;this ever happen?
             continue
 		
-		dwAddress := readDWORD(hGTA, dwRemoteplayerData + 489)        ;iGlobalMarkerLoaded
+		dwAddress := readFloat(hGTA, dwRemoteplayerData + SAMP_REMOTEPLAYERDATA_GLOBALPOS[sampVersion])        ;iGlobalMarkerLoaded
         if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
         }
 		if(dwAddress)
 		{
-			ix := readMem(hGTA, dwRemoteplayerData + 493, 4, "Int")        ;x map
+			ix := readMem(hGTA, dwRemoteplayerData + SAMP_REMOTEPLAYERDATA_GLOBALPOS[sampVersion], 4, "Float")        ;x map
 			if(ErrorLevel) {
 				ErrorLevel := ERROR_READ_MEMORY
 				return 0
 			}
-			iy := readMem(hGTA, dwRemoteplayerData + 497, 4, "Int")        ;y map
+			iy := readMem(hGTA, dwRemoteplayerData + SAMP_REMOTEPLAYERDATA_GLOBALPOS[sampVersion] + 0x4, 4, "Float")        ;y map
 			if(ErrorLevel) {
 				ErrorLevel := ERROR_READ_MEMORY
 				return 0
 			}
-			iz := readMem(hGTA, dwRemoteplayerData + 501, 4, "Int")        ;z map
+			iz := readMem(hGTA, dwRemoteplayerData + SAMP_REMOTEPLAYERDATA_GLOBALPOS[sampVersion] + 0x8, 4, "Float")        ;z map
 			if(ErrorLevel) {
 				ErrorLevel := ERROR_READ_MEMORY
 				return 0
@@ -2788,7 +2810,7 @@ UpdateOScoreboardData() {
 			o.MPOS := [ix, iy, iz]
 		}
         
-        dwpSAMP_Actor := readDWORD(hGTA, dwRemoteplayerData + 0x0)                ;pSAMP_Actor
+        dwpSAMP_Actor := readDWORD(hGTA, dwRemoteplayerData + SAMP_REMOTEPLAYERDATA_ACTOR[sampVersion])                ;pSAMP_Actor
         if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
@@ -2796,21 +2818,22 @@ UpdateOScoreboardData() {
         if(dwpSAMP_Actor==0)               ;not streamed in
             continue
 
-        dwPed := readDWORD(hGTA, dwpSAMP_Actor + 676)                ;pGTA_Ped_
+        dwPed := readDWORD(hGTA, dwpSAMP_Actor + SAMP_REMOTEPLAYERDATA_PED[sampVersion])              ;pGTA_Ped_
         if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
         }
         if(dwPed==0)
             continue
+
         o.PED := dwPed
-		
-		fHP := readFloat(hGTA, dwRemoteplayerData + 444)
+		fHP := readFloat(hGTA, dwRemoteplayerData + SAMP_REMOTEPLAYERDATA_HEALTH[sampVersion])
 		if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
         }
-		fARMOR := readFloat(hGTA, dwRemoteplayerData + 440)
+		fARMOR := readFloat(hGTA, dwRemoteplayerData + SAMP_REMOTEPLAYERDATA_ARMOR[sampVersion])
+
 		if(ErrorLevel) {
             ErrorLevel := ERROR_READ_MEMORY
             return 0
@@ -2826,8 +2849,9 @@ UpdateOScoreboardData() {
 SetCheckpoint(fX, fY, fZ, fSize) {
     if(!checkHandles())
         return false
-    dwFunc := dwSAMP + 0x9D340
-    dwAddress := readDWORD(hGTA, dwSAMP + ADDR_SAMP_INCHAT_PTR) ;misc info
+
+    dwFunc := dwSAMP + FUNC_SAMP_SETCHECKPOINT[sampVersion]
+    dwAddress := readDWORD(hGTA, dwSAMP + ADDR_SAMP_INCHAT_PTR[sampVersion]) ;misc info
     if(ErrorLevel || dwAddress==0) {
         ErrorLevel := ERROR_READ_MEMORY
         return false
@@ -2850,7 +2874,7 @@ SetCheckpoint(fX, fY, fZ, fSize) {
     offset := dwFunc - (pInjectFunc + 20)
     NumPut(offset, injectData, 16, "Int")
     NumPut(0x05C7, injectData, 20, "UShort")
-    NumPut(dwAddress+0x24, injectData, 22, "UInt")
+    NumPut(dwAddress+SAMP_CHECKPOINT_ACTIVE[sampVersion], injectData, 22, "UInt")
     NumPut(1, injectData, 26, "UInt")
     NumPut(0xC3, injectData, 30, "UChar")
     writeRaw(hGTA, pInjectFunc, &injectData, dwLen)
@@ -2868,14 +2892,14 @@ SetCheckpoint(fX, fY, fZ, fSize) {
 DisableCheckpoint() {
     if(!checkHandles())
         return false
-    dwAddress := readDWORD(hGTA, dwSAMP + ADDR_SAMP_INCHAT_PTR) ;misc info
+    dwAddress := readDWORD(hGTA, dwSAMP + ADDR_SAMP_INCHAT_PTR[sampVersion]) ;misc info
     if(ErrorLevel || dwAddress==0) {
         ErrorLevel := ERROR_READ_MEMORY
         return false
     }
     VarSetCapacity(enablecp, 4, 0)
     NumPut(0,enablecp,0,"Int")
-    writeRaw(hGTA, dwAddress+0x24, &enablecp, 4)
+    writeRaw(hGTA, dwAddress+SAMP_CHECKPOINT_ACTIVE[sampVersion], &enablecp, 4)
     ErrorLevel := ERROR_OK
     return true
 }
@@ -3478,15 +3502,13 @@ writeMemory(hProcess,address,writevalue,length=4, datatype="int") {
 
 ; ##### Sonstiges #####
 checkHandles() {
-    if(iRefreshHandles+500>A_TickCount)
+    if (iRefreshHandles + 500 > A_TickCount)
         return true
-    iRefreshHandles:=A_TickCount
-    if(!refreshGTA() || !refreshSAMP() || !refreshMemory()) {
+
+    if (!refreshGTA() || !refreshSAMP() || !refreshMemory())
         return false
-    } else {
-        return true
-    }
-    
+
+    iRefreshHandles := A_TickCount
     return true
 }
 
@@ -3531,7 +3553,12 @@ refreshSAMP() {
     dwSAMP := getModuleBaseAddress("samp.dll", hGTA)
     if(!dwSAMP)
         return false
-    
+
+    versionByte := readMem(hGTA, dwSAMP + 0x1036, 1, "UChar")
+    sampVersion := versionByte == 0xD8 ? 1 : (versionByte == 0xA8 ? 2 : (versionByte == 0x78 ? 3 : 0))
+    if (!sampVersion)
+    	return false
+
     return true
 }
 
