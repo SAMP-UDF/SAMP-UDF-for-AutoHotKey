@@ -28,7 +28,7 @@ return
 connect:
 RegRead GTA_SA_EXE, HKEY_CURRENT_USER, Software\SAMP, gta_sa_exe
 SplitPath, GTA_SA_EXE,, PFAD
-Run %Pfad%\samp.exe 127.0.0.1:7777, %PFAD%
+Run %Pfad%\samp.exe server.nemesus-roleplay.net:7777, %PFAD%
 Return
 
 refresh:
@@ -111,7 +111,7 @@ Numpad5::
 if ( IsInChat() )
 return
 AddChatMessage("{FFFFFF}IP: {FF0000}" GetServerIp() "{FFFFFF}, Hostname: {FF0000}" GetServerName())
-AddChatMessage("{FFFFFF}Name: {FF0000}" GetPlayerName())
+AddChatMessage("{FFFFFF}Name: {FF0000}" GetPlayerName()"{FFFFFF}, Port: {FF0000}" GetServerPort())
 AddChatMessage("{FFFFFF}HP: {FF0000}" GetPlayerHealth() "{FFFFFF}, ARMOR: {FF0000}" GetPlayerArmor())
 pos := GetPlayerCoordinates()
 AddChatMessage("{FFFFFF}Zone: {FF0000}" CalculateZone(pos[1],pos[2],pos[3]) "{FFFFFF}, Stadt: {FF0000}" CalculateCity(pos[1],pos[2],pos[3]))
@@ -186,6 +186,7 @@ AddChatMessage("{FFFFFF}Is Driver:" IsPlayerDriver() " | 0 nein, 1ja")
 AddChatMessage("{FFFFFF}Light State:" GetVehicleLightState())
 AddChatMessage("{FFFFFF}Engine State:" GetVehicleEngineState())
 AddChatMessage("{FFFFFF}Door State:" GetVehicleLockState())
+AddChatMessage("Nummernschild:" GetVehicleNumberPlate())
 return
 
 Numpad8::
