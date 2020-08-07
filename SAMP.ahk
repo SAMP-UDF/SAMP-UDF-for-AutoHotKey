@@ -2316,7 +2316,7 @@ GetDialogLineCount() {
 }
 
 GetDialogLine__(index) {
-	if (GetDialogLineCount > index)
+	if (GetDialogLineCount() > index)
 		return ""
 
 	dwPointer := GetDialogStructPtr()
